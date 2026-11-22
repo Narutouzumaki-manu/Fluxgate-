@@ -1,0 +1,87 @@
+# =============================================================================
+# FluxGate .gitignore — secrets, local data, models, caches.
+# Rule of thumb: if it holds a key, a user prompt, a model, or a database, it is ignored.
+# =============================================================================
+
+# --- Secrets & local environment (NEVER commit) ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+.secrets/
+*.secret
+
+# --- Runtime data (databases, WAL, backups, cache blobs) ---
+data/
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+*.faiss
+*.index
+backup-*.db
+
+# --- Downloaded models & tokenizer caches (fetched by scripts/download_models.py) ---
+models/
+.cache/
+.huggingface/
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.python-version
+
+# --- Test / lint / type caches & reports ---
+.pytest_cache/
+.hypothesis/examples/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.benchmarks/
+
+# --- Benchmarks: raw datasets & scratch output stay local; committed results are explicit ---
+integration/benchmarks/datasets/raw/
+integration/benchmarks/reports/tmp/
+# (integration/benchmarks/reports/results/*.json and REPORT.md ARE committed on purpose)
+
+# --- Frontend (only if the optional React dashboard is ever adopted) ---
+node_modules/
+
+# --- Docker / compose local overrides ---
+docker-compose.override.yml
+.docker/
+
+# --- Editors & OS ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Deliberately NOT ignored (committed) ---
+# uv.lock                          exact dependency versions
+# dashboard/static/vendor/         vendored htmx/alpine/chart.js (offline, no CDN)
+# .env.example                     placeholders only
+# config/*.example.yaml            examples without secrets

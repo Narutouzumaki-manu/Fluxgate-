@@ -1,0 +1,206 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "fluxgate"
+version = "0.1.0.dev0"
+description = "Self-hosted, OpenAI-compatible AI security gateway with semantic caching, multi-provider failover and OWASP-LLM guardrails. Zero-cost by design."
+readme = "README.md"
+requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+keywords = ["llm", "gateway", "semantic-cache", "prompt-injection", "pii-redaction", "openai-compatible", "circuit-breaker"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Framework :: FastAPI",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+
+# Version values are FLOORS (see docs/TOOLS_AND_REQUIREMENTS.md).
+# The committed uv.lock is the exact-version source of truth: run `uv lock` on Day 1 of Phase 1b.
+dependencies = [
+    # --- shared ---
+    "pydantic>=2.8",
+    "pydantic-settings>=2.4",
+    "pyyaml>=6.0",
+    "aiosqlite>=0.20",
+    "orjson>=3.10",
+    "structlog>=24.1",
+    "typer>=0.12",
+    "rich>=13",
+    "python-ulid>=2.7",
+    # --- Member 1: guardrails + cache ---
+    "numpy>=1.26,<3",
+    "faiss-cpu>=1.8",
+    "sentence-transformers>=3.0",
+    "torch>=2.3",          # CPU build via [tool.uv.sources] below; never install CUDA wheels (zero-cost, small footprint)
+    "tiktoken>=0.7",       # token-savings ESTIMATES only; provider-reported usage is preferred
+    # --- Member 2: gateway + router + dashboard ---
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "httpx>=0.27",
+    "jinja2>=3.1",
+    "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=5",
+    "pytest-benchmark>=4",
+    "pytest-socket>=0.7",   # network off by default in tests; `live` tests opt in
+    "hypothesis>=6.100",
+    "respx>=0.21",
+    "faker>=25",
+    "openai>=1.40",         # compatibility tests ONLY (proves the real SDK works via base_url)
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "types-PyYAML",
+    "import-linter>=2.0",
+    "pre-commit>=3.7",
+]
+bench = [
+    "locust>=2.29",         # optional load smoke tests (Member 2)
+]
+
+[project.scripts]
+fluxgate-guardrails = "guardrails.cli:app"
+fluxgate-cache = "cache.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/Narutouzumaki-manu/Fluxgate-.git"
+Issues = "https://github.com/Narutouzumaki-manu/Fluxgate-/issues"
+
+# ---------------------------------------------------------------------------
+# Packaging
+# ---------------------------------------------------------------------------
+[tool.hatch.build.targets.wheel]
+packages = ["shared", "guardrails", "cache", "integration", "gateway", "router", "dashboard"]
+
+# ---------------------------------------------------------------------------
+# uv: CPU-only PyTorch on Linux/Windows (macOS wheels are already CPU/MPS)
+# ---------------------------------------------------------------------------
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+
+# ---------------------------------------------------------------------------
+# Ruff (lint + format)
+# ---------------------------------------------------------------------------
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+extend-exclude = ["integration/benchmarks/datasets/raw", "dashboard/static/vendor"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S", "ASYNC", "C4", "PT", "RUF", "SIM"]
+ignore = [
+    "S311",   # random is used only for seeded test data / jitter, never for secrets
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S105", "S106"]      # asserts and fake canary secrets are expected in tests
+"scripts/**" = ["S101"]
+"integration/benchmarks/**" = ["S101", "S105", "S106"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+# ---------------------------------------------------------------------------
+# mypy: strict on the contract + Member 1 packages, standard elsewhere
+# ---------------------------------------------------------------------------
+[tool.mypy]
+python_version = "3.11"
+plugins = ["pydantic.mypy"]
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["shared.*", "guardrails.*", "cache.*"]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["faiss.*", "sentence_transformers.*", "tiktoken.*", "locust.*"]
+ignore_missing_imports = true
+
+# ---------------------------------------------------------------------------
+# pytest
+# ---------------------------------------------------------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+# `live` tests (real providers, free quota!) never run unless explicitly selected: pytest -m live
+addopts = "-ra --strict-markers --strict-config -m 'not live'"
+markers = [
+    "slow: long-running tests",
+    "perf: micro-benchmarks (pytest-benchmark); informational in CI",
+    "live: hits REAL provider APIs and uses free-tier quota; manual only",
+    "security: security-critical tests (tenant isolation, leak canaries, ReDoS)",
+    "property: hypothesis property-based tests",
+]
+filterwarnings = ["error::DeprecationWarning:shared.*"]
+
+# ---------------------------------------------------------------------------
+# coverage (per-gate thresholds are enforced in CI per path; see docs/TESTING_AND_BENCHMARK_GUIDE.md §6)
+#   guardrails/, cache/ >= 90%   gateway/, router/ >= 85%   security-critical files: 100% branch
+# ---------------------------------------------------------------------------
+[tool.coverage.run]
+source = ["shared", "guardrails", "cache", "gateway", "router", "dashboard"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:", "raise NotImplementedError", "\\.\\.\\."]
+
+# ---------------------------------------------------------------------------
+# import-linter: module boundaries from docs/ARCHITECTURE_BLUEPRINT.md §5
+# NOTE: wildcard syntax ("pkg.*") must be re-verified when the scaffold commit lands (Phase 1b).
+# ---------------------------------------------------------------------------
+[tool.importlinter]
+root_packages = ["shared", "guardrails", "cache", "router", "gateway", "dashboard", "integration"]
+include_external_packages = false
+
+[[tool.importlinter.contracts]]
+name = "Member 1 modules depend only on shared/"
+type = "forbidden"
+source_modules = ["guardrails", "cache"]
+forbidden_modules = ["gateway", "router", "dashboard", "integration"]
+
+[[tool.importlinter.contracts]]
+name = "router depends only on shared/"
+type = "forbidden"
+source_modules = ["router"]
+forbidden_modules = ["guardrails", "cache", "gateway", "dashboard", "integration"]
+
+[[tool.importlinter.contracts]]
+name = "gateway uses only the public builders of guardrails/cache/router"
+type = "forbidden"
+source_modules = ["gateway"]
+forbidden_modules = ["guardrails.*", "cache.*", "router.*", "integration"]
+
+[[tool.importlinter.contracts]]
+name = "dashboard talks to the system through gateway admin APIs and shared/ only"
+type = "forbidden"
+source_modules = ["dashboard"]
+forbidden_modules = ["guardrails", "cache", "router", "guardrails.*", "cache.*", "router.*", "integration"]
+
+[[tool.importlinter.contracts]]
+name = "Nothing imports integration/ (the RAG benchmark client is never a runtime dependency)"
+type = "forbidden"
+source_modules = ["shared", "guardrails", "cache", "router", "gateway", "dashboard"]
+forbidden_modules = ["integration"]

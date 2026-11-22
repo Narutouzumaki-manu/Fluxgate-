@@ -1,0 +1,8 @@
+title = "FluxGate Gitleaks Config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Allow AWS documentation canary string used in PII redaction tests"
+regexes = ['''AKIAIOSFODNN7EXAMPLE''']
