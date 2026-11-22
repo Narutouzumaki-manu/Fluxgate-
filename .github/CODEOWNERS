@@ -1,0 +1,27 @@
+# Default: both
+*                         @member1 @member2
+
+# Member 1
+/guardrails/              @member1
+/cache/                   @member1
+/integration/             @member1
+/config/policies/         @member1
+/tests/unit/guardrails/   @member1
+/tests/unit/cache/        @member1
+/tests/security/          @member1
+/scripts/verify_m1.py     @member1
+
+# Member 2
+/gateway/                 @member2
+/router/                  @member2
+/dashboard/               @member2
+/Dockerfile               @member2
+/docker-compose.yml       @member2
+/config/providers.example.yaml @member2
+/tests/unit/gateway/      @member2
+/tests/unit/router/       @member2
+/tests/e2e/               @member2
+
+# Shared contracts: both must approve
+/shared/contracts/        @member1 @member2
+/docs/                    @member1 @member2

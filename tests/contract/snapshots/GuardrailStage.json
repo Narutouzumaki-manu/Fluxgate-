@@ -1,0 +1,8 @@
+{
+  "__type": "StrEnum",
+  "values": [
+    "inbound",
+    "response",
+    "stream"
+  ]
+}

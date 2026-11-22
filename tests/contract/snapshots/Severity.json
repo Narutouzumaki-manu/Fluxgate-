@@ -1,0 +1,10 @@
+{
+  "__type": "StrEnum",
+  "values": [
+    "critical",
+    "high",
+    "info",
+    "low",
+    "medium"
+  ]
+}

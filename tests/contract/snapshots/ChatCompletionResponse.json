@@ -1,0 +1,195 @@
+{
+  "$defs": {
+    "ChatCompletionChoice": {
+      "additionalProperties": true,
+      "properties": {
+        "finish_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finish Reason"
+        },
+        "index": {
+          "default": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "message": {
+          "$ref": "#/$defs/ChatMessage"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "title": "ChatCompletionChoice",
+      "type": "object"
+    },
+    "ChatCompletionUsage": {
+      "additionalProperties": true,
+      "properties": {
+        "completion_tokens": {
+          "default": 0,
+          "title": "Completion Tokens",
+          "type": "integer"
+        },
+        "prompt_tokens": {
+          "default": 0,
+          "title": "Prompt Tokens",
+          "type": "integer"
+        },
+        "total_tokens": {
+          "default": 0,
+          "title": "Total Tokens",
+          "type": "integer"
+        }
+      },
+      "title": "ChatCompletionUsage",
+      "type": "object"
+    },
+    "ChatMessage": {
+      "additionalProperties": true,
+      "properties": {
+        "content": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "role": {
+          "enum": [
+            "system",
+            "developer",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "tool_call_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Call Id"
+        },
+        "tool_calls": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Calls"
+        }
+      },
+      "required": [
+        "role"
+      ],
+      "title": "ChatMessage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "choices": {
+      "items": {
+        "$ref": "#/$defs/ChatCompletionChoice"
+      },
+      "title": "Choices",
+      "type": "array"
+    },
+    "created": {
+      "title": "Created",
+      "type": "integer"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "model": {
+      "title": "Model",
+      "type": "string"
+    },
+    "object": {
+      "const": "chat.completion",
+      "default": "chat.completion",
+      "title": "Object",
+      "type": "string"
+    },
+    "system_fingerprint": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "System Fingerprint"
+    },
+    "usage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ChatCompletionUsage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "id",
+    "created",
+    "model",
+    "choices"
+  ],
+  "title": "ChatCompletionResponse",
+  "type": "object"
+}

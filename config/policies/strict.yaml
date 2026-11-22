@@ -1,0 +1,88 @@
+# FluxGate — Strict Guardrail Policy
+# Owner: Member 1.  Reviewer: Member 2.
+# Source of truth: docs/ARCHITECTURE_BLUEPRINT.md §10.4, TRD §A2.3, D-003, D-004, D-007.
+#
+# This policy applies tighter thresholds, blocks on PII categories that the
+# default policy merely redacts, and disables prompt preview storage.
+# Assign to a tenant via: guardrail_policy: strict
+# Or to a specific key via: guardrail_policy: strict in virtual_keys.
+#
+# Placeholder syntax (D-007, TRD §A5.1):
+#   [[FG:<TYPE>:<N>:<nonce>]]
+#   where TYPE ∈ {EMAIL, PHONE, AADHAAR, PAN, CARD, SECRET, KEY, CUSTOM}
+#   N = per-type counter per request (same value → same placeholder)
+#   nonce = 4 random hex chars per request (prevents forgery)
+#
+# Any literal [[FG: in input is neutralized as a CUSTOM finding and redacted.
+
+name: strict
+
+# ---------------------------------------------------------------------------
+# Injection / jailbreak risk thresholds (tighter than default; TRD §A2.3)
+# ---------------------------------------------------------------------------
+injection_warn_threshold: 0.35
+injection_block_threshold: 0.70
+
+# ---------------------------------------------------------------------------
+# Inspection scope (same as default; both enabled)
+# ---------------------------------------------------------------------------
+inspect_system_messages: true
+inspect_retrieved_context: true
+
+# ---------------------------------------------------------------------------
+# Input size controls (same limits; block on oversize instead of warn)
+# ---------------------------------------------------------------------------
+max_inspect_chars: 200000
+on_oversize: block
+
+# ---------------------------------------------------------------------------
+# Error / timeout handling (block = default; explicit for clarity)
+# ---------------------------------------------------------------------------
+on_internal_error: block
+
+# ---------------------------------------------------------------------------
+# PII type policies (stricter: Aadhaar/PAN/card → block; email/phone → redact)
+# ---------------------------------------------------------------------------
+pii:
+  pii_email:
+    action: redact
+    restore_in_response: false
+  pii_phone:
+    action: redact
+    restore_in_response: false
+  pii_aadhaar:
+    action: block               # strict: block request on Aadhaar detection
+    restore_in_response: false
+  pii_pan:
+    action: block               # strict: block request on PAN detection
+    restore_in_response: false
+  pii_card:
+    action: block               # strict: block request on payment card detection
+    restore_in_response: false
+
+# ---------------------------------------------------------------------------
+# Secret policy (block instead of redact in strict mode)
+# ---------------------------------------------------------------------------
+secrets:
+  action: block               # strict: reject any request containing secrets
+  restore_in_response: false  # secrets are NEVER restored even if set true
+
+# ---------------------------------------------------------------------------
+# Response scanning (same redact action; additional block config possible in P1)
+# ---------------------------------------------------------------------------
+response_scan: redact
+
+# ---------------------------------------------------------------------------
+# Cache risk gate (tighter threshold than default)
+# ---------------------------------------------------------------------------
+cache_max_risk: 0.15
+
+# ---------------------------------------------------------------------------
+# Prompt preview storage (D-004: OFF in strict/prod)
+# ---------------------------------------------------------------------------
+store_prompt_preview: false
+
+# ---------------------------------------------------------------------------
+# Custom regex patterns (same extension point; none seeded in strict)
+# ---------------------------------------------------------------------------
+custom_patterns: {}

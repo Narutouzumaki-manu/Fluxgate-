@@ -1,0 +1,121 @@
+{
+  "$defs": {
+    "RetrievedChunk": {
+      "additionalProperties": false,
+      "properties": {
+        "chunk_id": {
+          "maxLength": 128,
+          "title": "Chunk Id",
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "text": {
+          "maxLength": 32000,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "chunk_id",
+        "text"
+      ],
+      "title": "RetrievedChunk",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Optional extension (body field `fluxgate`). Never required.\n\nStripped by the gateway before the provider call; retained in the *sanitized* request\ninside FluxGate so the cache can use `semantic_query`, `context_fingerprint`, `cache_scope`.",
+  "properties": {
+    "cache": {
+      "default": "auto",
+      "enum": [
+        "auto",
+        "bypass",
+        "exact_only"
+      ],
+      "title": "Cache",
+      "type": "string"
+    },
+    "cache_scope": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9_.:-]{1,64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cache Scope"
+    },
+    "context_fingerprint": {
+      "anyOf": [
+        {
+          "maxLength": 128,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Context Fingerprint"
+    },
+    "guardrail_policy": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Guardrail Policy"
+    },
+    "retrieved_context": {
+      "anyOf": [
+        {
+          "items": {
+            "$ref": "#/$defs/RetrievedChunk"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Retrieved Context"
+    },
+    "semantic_query": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Semantic Query"
+    }
+  },
+  "title": "FluxGateOptions",
+  "type": "object"
+}

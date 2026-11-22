@@ -1,0 +1,160 @@
+{
+  "$defs": {
+    "ContentSource": {
+      "enum": [
+        "system",
+        "user",
+        "assistant",
+        "tool",
+        "retrieved_context",
+        "response"
+      ],
+      "title": "ContentSource",
+      "type": "string"
+    },
+    "FindingType": {
+      "enum": [
+        "prompt_injection",
+        "jailbreak",
+        "indirect_injection",
+        "prompt_leak_attempt",
+        "obfuscation",
+        "pii_email",
+        "pii_phone",
+        "pii_aadhaar",
+        "pii_pan",
+        "pii_card",
+        "secret_api_key",
+        "secret_token",
+        "secret_private_key",
+        "secret_high_entropy",
+        "custom"
+      ],
+      "title": "FindingType",
+      "type": "string"
+    },
+    "RedactionAction": {
+      "enum": [
+        "allow",
+        "warn",
+        "redact",
+        "block"
+      ],
+      "title": "RedactionAction",
+      "type": "string"
+    },
+    "Severity": {
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A single detection. NEVER contains raw sensitive values.",
+  "properties": {
+    "action": {
+      "$ref": "#/$defs/RedactionAction",
+      "default": "allow"
+    },
+    "chunk_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Chunk Id"
+    },
+    "confidence": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "masked_preview": {
+      "anyOf": [
+        {
+          "maxLength": 64,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Masked Preview"
+    },
+    "message_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Message Index"
+    },
+    "meta": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Meta",
+      "type": "object"
+    },
+    "rule_id": {
+      "title": "Rule Id",
+      "type": "string"
+    },
+    "severity": {
+      "$ref": "#/$defs/Severity"
+    },
+    "source": {
+      "$ref": "#/$defs/ContentSource"
+    },
+    "span": {
+      "anyOf": [
+        {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Span"
+    },
+    "type": {
+      "$ref": "#/$defs/FindingType"
+    }
+  },
+  "required": [
+    "type",
+    "severity",
+    "rule_id",
+    "confidence",
+    "source"
+  ],
+  "title": "Finding",
+  "type": "object"
+}

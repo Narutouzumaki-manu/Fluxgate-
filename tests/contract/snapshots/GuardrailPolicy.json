@@ -1,0 +1,157 @@
+{
+  "$defs": {
+    "Decision": {
+      "enum": [
+        "allow",
+        "warn",
+        "block"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "FindingType": {
+      "enum": [
+        "prompt_injection",
+        "jailbreak",
+        "indirect_injection",
+        "prompt_leak_attempt",
+        "obfuscation",
+        "pii_email",
+        "pii_phone",
+        "pii_aadhaar",
+        "pii_pan",
+        "pii_card",
+        "secret_api_key",
+        "secret_token",
+        "secret_private_key",
+        "secret_high_entropy",
+        "custom"
+      ],
+      "title": "FindingType",
+      "type": "string"
+    },
+    "RedactionAction": {
+      "enum": [
+        "allow",
+        "warn",
+        "redact",
+        "block"
+      ],
+      "title": "RedactionAction",
+      "type": "string"
+    },
+    "TypePolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/RedactionAction",
+          "default": "redact"
+        },
+        "restore_in_response": {
+          "default": false,
+          "title": "Restore In Response",
+          "type": "boolean"
+        }
+      },
+      "title": "TypePolicy",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "cache_max_risk": {
+      "default": 0.3,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Cache Max Risk",
+      "type": "number"
+    },
+    "custom_patterns": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Custom Patterns",
+      "type": "object"
+    },
+    "injection_block_threshold": {
+      "default": 0.85,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Injection Block Threshold",
+      "type": "number"
+    },
+    "injection_warn_threshold": {
+      "default": 0.5,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Injection Warn Threshold",
+      "type": "number"
+    },
+    "inspect_retrieved_context": {
+      "default": true,
+      "title": "Inspect Retrieved Context",
+      "type": "boolean"
+    },
+    "inspect_system_messages": {
+      "default": true,
+      "title": "Inspect System Messages",
+      "type": "boolean"
+    },
+    "max_inspect_chars": {
+      "default": 200000,
+      "title": "Max Inspect Chars",
+      "type": "integer"
+    },
+    "name": {
+      "title": "Name",
+      "type": "string"
+    },
+    "on_internal_error": {
+      "$ref": "#/$defs/Decision",
+      "default": "block"
+    },
+    "on_oversize": {
+      "$ref": "#/$defs/Decision",
+      "default": "warn"
+    },
+    "pii": {
+      "additionalProperties": {
+        "$ref": "#/$defs/TypePolicy"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/FindingType"
+      },
+      "title": "Pii",
+      "type": "object"
+    },
+    "response_scan": {
+      "$ref": "#/$defs/RedactionAction",
+      "default": "redact"
+    },
+    "secrets": {
+      "$ref": "#/$defs/TypePolicy"
+    },
+    "store_prompt_preview": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Store Prompt Preview"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "version"
+  ],
+  "title": "GuardrailPolicy",
+  "type": "object"
+}

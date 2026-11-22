@@ -61,12 +61,14 @@ python scripts/create_dev_key.py           # prints an fgx- key ONCE
 ```python
 from openai import OpenAI
 
-client = OpenAI(base_url="http://localhost:8000/v1", api_key="fgx-...")   # only these two values change
+client = OpenAI(
+    base_url="http://localhost:8000/v1", api_key="fgx-..."
+)  # only these two values change
 
 resp = client.chat.completions.create(
     model="fluxgate-default",
     messages=[{"role": "user", "content": "Summarize our refund policy."}],
-    temperature=0.2,          # semantic (L2) cache serves temperature <= 0.5; omitted temperature counts as 1.0
+    temperature=0.2,  # semantic (L2) cache serves temperature <= 0.5; omitted temperature counts as 1.0
 )
 print(resp.choices[0].message.content)
 ```
@@ -78,11 +80,15 @@ resp = client.chat.completions.create(
     model="fluxgate-default",
     messages=[...],
     temperature=0.2,
-    extra_body={"fluxgate": {
-        "semantic_query": "What is the refund window?",          # what L2 embeds (MiniLM truncates at 256 word-pieces)
-        "context_fingerprint": "sha256-of-retrieved-chunk-ids",  # semantic hits require identical context
-        "retrieved_context": [{"chunk_id": "c1", "text": "…", "source": "policy.pdf#3"}],  # scanned for indirect injection
-    }},
+    extra_body={
+        "fluxgate": {
+            "semantic_query": "What is the refund window?",  # what L2 embeds (MiniLM truncates at 256 word-pieces)
+            "context_fingerprint": "sha256-of-retrieved-chunk-ids",  # semantic hits require identical context
+            "retrieved_context": [
+                {"chunk_id": "c1", "text": "…", "source": "policy.pdf#3"}
+            ],  # scanned for indirect injection
+        }
+    },
 )
 ```
 

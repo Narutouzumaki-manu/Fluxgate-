@@ -1,0 +1,28 @@
+{
+  "$defs": {
+    "RedactionAction": {
+      "enum": [
+        "allow",
+        "warn",
+        "redact",
+        "block"
+      ],
+      "title": "RedactionAction",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "action": {
+      "$ref": "#/$defs/RedactionAction",
+      "default": "redact"
+    },
+    "restore_in_response": {
+      "default": false,
+      "title": "Restore In Response",
+      "type": "boolean"
+    }
+  },
+  "title": "TypePolicy",
+  "type": "object"
+}

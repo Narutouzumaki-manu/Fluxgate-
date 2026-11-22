@@ -1,0 +1,61 @@
+{
+  "$defs": {
+    "CacheBypassReason": {
+      "enum": [
+        "client_opt_out",
+        "cache_disabled",
+        "high_temperature",
+        "tools_present",
+        "multimodal",
+        "n_greater_than_one",
+        "pii_or_secret_present",
+        "guardrail_not_clean",
+        "risk_above_threshold",
+        "response_not_clean",
+        "incomplete_response",
+        "non_stop_finish",
+        "too_large",
+        "cache_error",
+        "tenant_quota_exceeded"
+      ],
+      "title": "CacheBypassReason",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "entry_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Entry Id"
+    },
+    "ineligible_reasons": {
+      "items": {
+        "$ref": "#/$defs/CacheBypassReason"
+      },
+      "title": "Ineligible Reasons",
+      "type": "array"
+    },
+    "latency_ms": {
+      "default": 0.0,
+      "title": "Latency Ms",
+      "type": "number"
+    },
+    "stored": {
+      "title": "Stored",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "stored"
+  ],
+  "title": "StoreDecision",
+  "type": "object"
+}

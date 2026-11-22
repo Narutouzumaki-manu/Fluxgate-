@@ -1,0 +1,9 @@
+{
+  "__type": "StrEnum",
+  "values": [
+    "bypass",
+    "hit_l1",
+    "hit_l2",
+    "miss"
+  ]
+}

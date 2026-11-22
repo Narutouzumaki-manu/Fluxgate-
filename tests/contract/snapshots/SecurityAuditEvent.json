@@ -1,0 +1,198 @@
+{
+  "$defs": {
+    "ContentSource": {
+      "enum": [
+        "system",
+        "user",
+        "assistant",
+        "tool",
+        "retrieved_context",
+        "response"
+      ],
+      "title": "ContentSource",
+      "type": "string"
+    },
+    "Decision": {
+      "enum": [
+        "allow",
+        "warn",
+        "block"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "FindingType": {
+      "enum": [
+        "prompt_injection",
+        "jailbreak",
+        "indirect_injection",
+        "prompt_leak_attempt",
+        "obfuscation",
+        "pii_email",
+        "pii_phone",
+        "pii_aadhaar",
+        "pii_pan",
+        "pii_card",
+        "secret_api_key",
+        "secret_token",
+        "secret_private_key",
+        "secret_high_entropy",
+        "custom"
+      ],
+      "title": "FindingType",
+      "type": "string"
+    },
+    "GuardrailStage": {
+      "enum": [
+        "inbound",
+        "response",
+        "stream"
+      ],
+      "title": "GuardrailStage",
+      "type": "string"
+    },
+    "Severity": {
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "chunk_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Chunk Id"
+    },
+    "confidence": {
+      "default": 1.0,
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "created_at_unix_ms": {
+      "title": "Created At Unix Ms",
+      "type": "integer"
+    },
+    "decision": {
+      "$ref": "#/$defs/Decision"
+    },
+    "event_id": {
+      "title": "Event Id",
+      "type": "string"
+    },
+    "finding_type": {
+      "$ref": "#/$defs/FindingType"
+    },
+    "key_id": {
+      "title": "Key Id",
+      "type": "string"
+    },
+    "masked_preview": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Masked Preview"
+    },
+    "message_index": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Message Index"
+    },
+    "policy_name": {
+      "title": "Policy Name",
+      "type": "string"
+    },
+    "policy_version": {
+      "title": "Policy Version",
+      "type": "string"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "rule_id": {
+      "title": "Rule Id",
+      "type": "string"
+    },
+    "severity": {
+      "$ref": "#/$defs/Severity"
+    },
+    "source": {
+      "$ref": "#/$defs/ContentSource",
+      "default": "user"
+    },
+    "span": {
+      "anyOf": [
+        {
+          "maxItems": 2,
+          "minItems": 2,
+          "prefixItems": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "integer"
+            }
+          ],
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Span"
+    },
+    "stage": {
+      "$ref": "#/$defs/GuardrailStage"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "event_id",
+    "request_id",
+    "tenant_id",
+    "key_id",
+    "created_at_unix_ms",
+    "stage",
+    "decision",
+    "finding_type",
+    "rule_id",
+    "severity",
+    "masked_preview",
+    "policy_name",
+    "policy_version"
+  ],
+  "title": "SecurityAuditEvent",
+  "type": "object"
+}

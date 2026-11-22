@@ -1,0 +1,966 @@
+{
+  "$defs": {
+    "CacheKeys": {
+      "additionalProperties": false,
+      "description": "Computed at L1 lookup and passed through to maybe_store to avoid recomputation.",
+      "properties": {
+        "cache_scope": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cache Scope"
+        },
+        "compat_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Compat Hash"
+        },
+        "exact_key": {
+          "title": "Exact Key",
+          "type": "string"
+        }
+      },
+      "required": [
+        "exact_key"
+      ],
+      "title": "CacheKeys",
+      "type": "object"
+    },
+    "ChatCompletionChoice": {
+      "additionalProperties": true,
+      "properties": {
+        "finish_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finish Reason"
+        },
+        "index": {
+          "default": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "message": {
+          "$ref": "#/$defs/ChatMessage"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "title": "ChatCompletionChoice",
+      "type": "object"
+    },
+    "ChatCompletionRequest": {
+      "additionalProperties": true,
+      "properties": {
+        "fluxgate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FluxGateOptions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max_completion_tokens": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Completion Tokens"
+        },
+        "max_tokens": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Tokens"
+        },
+        "messages": {
+          "items": {
+            "$ref": "#/$defs/ChatMessage"
+          },
+          "minItems": 1,
+          "title": "Messages",
+          "type": "array"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "n": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N"
+        },
+        "response_format": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Response Format"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        },
+        "stop": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stop"
+        },
+        "stream": {
+          "default": false,
+          "title": "Stream",
+          "type": "boolean"
+        },
+        "stream_options": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stream Options"
+        },
+        "temperature": {
+          "anyOf": [
+            {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Temperature"
+        },
+        "tool_choice": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Choice"
+        },
+        "tools": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tools"
+        },
+        "top_p": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Top P"
+        },
+        "user": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "User"
+        }
+      },
+      "required": [
+        "model",
+        "messages"
+      ],
+      "title": "ChatCompletionRequest",
+      "type": "object"
+    },
+    "ChatCompletionResponse": {
+      "additionalProperties": true,
+      "properties": {
+        "choices": {
+          "items": {
+            "$ref": "#/$defs/ChatCompletionChoice"
+          },
+          "title": "Choices",
+          "type": "array"
+        },
+        "created": {
+          "title": "Created",
+          "type": "integer"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "object": {
+          "const": "chat.completion",
+          "default": "chat.completion",
+          "title": "Object",
+          "type": "string"
+        },
+        "system_fingerprint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Fingerprint"
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ChatCompletionUsage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "created",
+        "model",
+        "choices"
+      ],
+      "title": "ChatCompletionResponse",
+      "type": "object"
+    },
+    "ChatCompletionUsage": {
+      "additionalProperties": true,
+      "properties": {
+        "completion_tokens": {
+          "default": 0,
+          "title": "Completion Tokens",
+          "type": "integer"
+        },
+        "prompt_tokens": {
+          "default": 0,
+          "title": "Prompt Tokens",
+          "type": "integer"
+        },
+        "total_tokens": {
+          "default": 0,
+          "title": "Total Tokens",
+          "type": "integer"
+        }
+      },
+      "title": "ChatCompletionUsage",
+      "type": "object"
+    },
+    "ChatMessage": {
+      "additionalProperties": true,
+      "properties": {
+        "content": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "role": {
+          "enum": [
+            "system",
+            "developer",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "tool_call_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Call Id"
+        },
+        "tool_calls": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Calls"
+        }
+      },
+      "required": [
+        "role"
+      ],
+      "title": "ChatMessage",
+      "type": "object"
+    },
+    "ContentSource": {
+      "enum": [
+        "system",
+        "user",
+        "assistant",
+        "tool",
+        "retrieved_context",
+        "response"
+      ],
+      "title": "ContentSource",
+      "type": "string"
+    },
+    "Decision": {
+      "enum": [
+        "allow",
+        "warn",
+        "block"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "Finding": {
+      "additionalProperties": false,
+      "description": "A single detection. NEVER contains raw sensitive values.",
+      "properties": {
+        "action": {
+          "$ref": "#/$defs/RedactionAction",
+          "default": "allow"
+        },
+        "chunk_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Chunk Id"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "masked_preview": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Masked Preview"
+        },
+        "message_index": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Message Index"
+        },
+        "meta": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Meta",
+          "type": "object"
+        },
+        "rule_id": {
+          "title": "Rule Id",
+          "type": "string"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "source": {
+          "$ref": "#/$defs/ContentSource"
+        },
+        "span": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "integer"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Span"
+        },
+        "type": {
+          "$ref": "#/$defs/FindingType"
+        }
+      },
+      "required": [
+        "type",
+        "severity",
+        "rule_id",
+        "confidence",
+        "source"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "FindingType": {
+      "enum": [
+        "prompt_injection",
+        "jailbreak",
+        "indirect_injection",
+        "prompt_leak_attempt",
+        "obfuscation",
+        "pii_email",
+        "pii_phone",
+        "pii_aadhaar",
+        "pii_pan",
+        "pii_card",
+        "secret_api_key",
+        "secret_token",
+        "secret_private_key",
+        "secret_high_entropy",
+        "custom"
+      ],
+      "title": "FindingType",
+      "type": "string"
+    },
+    "FluxGateOptions": {
+      "additionalProperties": false,
+      "description": "Optional extension (body field `fluxgate`). Never required.\n\nStripped by the gateway before the provider call; retained in the *sanitized* request\ninside FluxGate so the cache can use `semantic_query`, `context_fingerprint`, `cache_scope`.",
+      "properties": {
+        "cache": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "bypass",
+            "exact_only"
+          ],
+          "title": "Cache",
+          "type": "string"
+        },
+        "cache_scope": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_.:-]{1,64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cache Scope"
+        },
+        "context_fingerprint": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Context Fingerprint"
+        },
+        "guardrail_policy": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Guardrail Policy"
+        },
+        "retrieved_context": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/RetrievedChunk"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved Context"
+        },
+        "semantic_query": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Semantic Query"
+        }
+      },
+      "title": "FluxGateOptions",
+      "type": "object"
+    },
+    "GuardrailResult": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "$ref": "#/$defs/Decision"
+        },
+        "degraded": {
+          "default": false,
+          "title": "Degraded",
+          "type": "boolean"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "title": "Findings",
+          "type": "array"
+        },
+        "latency_ms": {
+          "default": 0.0,
+          "title": "Latency Ms",
+          "type": "number"
+        },
+        "policy_name": {
+          "title": "Policy Name",
+          "type": "string"
+        },
+        "policy_version": {
+          "title": "Policy Version",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "redacted_types": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "title": "Redacted Types",
+          "type": "object"
+        },
+        "redaction_count": {
+          "default": 0,
+          "title": "Redaction Count",
+          "type": "integer"
+        },
+        "request_id": {
+          "title": "Request Id",
+          "type": "string"
+        },
+        "risk_level": {
+          "$ref": "#/$defs/Severity"
+        },
+        "risk_score": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Risk Score",
+          "type": "number"
+        },
+        "sanitized_request": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ChatCompletionRequest"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "stage": {
+          "$ref": "#/$defs/GuardrailStage",
+          "default": "inbound"
+        },
+        "vault": {
+          "default": null,
+          "title": "Vault"
+        }
+      },
+      "required": [
+        "request_id",
+        "decision",
+        "risk_score",
+        "risk_level",
+        "policy_name",
+        "policy_version"
+      ],
+      "title": "GuardrailResult",
+      "type": "object"
+    },
+    "GuardrailStage": {
+      "enum": [
+        "inbound",
+        "response",
+        "stream"
+      ],
+      "title": "GuardrailStage",
+      "type": "string"
+    },
+    "ProviderName": {
+      "enum": [
+        "groq",
+        "openrouter",
+        "nvidia_nim"
+      ],
+      "title": "ProviderName",
+      "type": "string"
+    },
+    "RedactionAction": {
+      "enum": [
+        "allow",
+        "warn",
+        "redact",
+        "block"
+      ],
+      "title": "RedactionAction",
+      "type": "string"
+    },
+    "ResponseScanResult": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "$ref": "#/$defs/Decision"
+        },
+        "findings": {
+          "items": {
+            "$ref": "#/$defs/Finding"
+          },
+          "title": "Findings",
+          "type": "array"
+        },
+        "latency_ms": {
+          "default": 0.0,
+          "title": "Latency Ms",
+          "type": "number"
+        },
+        "redaction_count": {
+          "default": 0,
+          "title": "Redaction Count",
+          "type": "integer"
+        },
+        "sanitized_text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sanitized Text"
+        }
+      },
+      "required": [
+        "decision"
+      ],
+      "title": "ResponseScanResult",
+      "type": "object"
+    },
+    "RetrievedChunk": {
+      "additionalProperties": false,
+      "properties": {
+        "chunk_id": {
+          "maxLength": 128,
+          "title": "Chunk Id",
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "text": {
+          "maxLength": 32000,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "chunk_id",
+        "text"
+      ],
+      "title": "RetrievedChunk",
+      "type": "object"
+    },
+    "Severity": {
+      "enum": [
+        "info",
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "title": "Severity",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "completed": {
+      "default": true,
+      "title": "Completed",
+      "type": "boolean"
+    },
+    "guardrail_inbound": {
+      "$ref": "#/$defs/GuardrailResult"
+    },
+    "keys": {
+      "$ref": "#/$defs/CacheKeys"
+    },
+    "model_served": {
+      "title": "Model Served",
+      "type": "string"
+    },
+    "provider": {
+      "$ref": "#/$defs/ProviderName"
+    },
+    "response": {
+      "$ref": "#/$defs/ChatCompletionResponse"
+    },
+    "response_scan": {
+      "$ref": "#/$defs/ResponseScanResult"
+    },
+    "sanitized_request": {
+      "$ref": "#/$defs/ChatCompletionRequest"
+    },
+    "streamed": {
+      "default": false,
+      "title": "Streamed",
+      "type": "boolean"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "ttl_seconds": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ttl Seconds"
+    },
+    "usage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ChatCompletionUsage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "usage_estimated": {
+      "default": false,
+      "title": "Usage Estimated",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "keys",
+    "sanitized_request",
+    "response",
+    "guardrail_inbound",
+    "response_scan",
+    "provider",
+    "model_served"
+  ],
+  "title": "CacheStoreRequest",
+  "type": "object"
+}

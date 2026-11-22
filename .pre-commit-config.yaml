@@ -1,0 +1,59 @@
+# FluxGate — pre-commit hook configuration.
+# Install hooks: pre-commit install
+# Run all: pre-commit run --all-files
+# Source of truth: docs/TOOLS_AND_REQUIREMENTS.md §7.3, GIT_AND_COLLAB_WORKFLOW.md §10.
+
+repos:
+  # ---------------------------------------------------------------------------
+  # Ruff: lint + format (single fast tool; replaces flake8/isort/black)
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.6        # keep in sync with pyproject.toml ruff floor
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # ---------------------------------------------------------------------------
+  # mypy: incremental type check on changed files.
+  # Full strict check runs in CI; pre-commit uses --follow-imports=silent for speed.
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.10.0       # keep in sync with pyproject.toml mypy floor
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - pydantic>=2.8
+          - pydantic-settings>=2.4
+          - types-PyYAML
+          - pytest
+        args: [--ignore-missing-imports, --follow-imports=silent]
+        files: ^(shared|guardrails|cache|router|gateway|dashboard|tests)/
+
+  # ---------------------------------------------------------------------------
+  # gitleaks: secret scanning (never commit provider keys; GIT_AND_COLLAB §10)
+  # Patterns that gitleaks must catch: gsk_, sk-or-v1-, nvapi-, fgx-, AKIA, sk-
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+
+  # ---------------------------------------------------------------------------
+  # pre-commit standard utility hooks
+  # ---------------------------------------------------------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-added-large-files
+        args: [--maxkb=1024]        # 1 MB; model files are git-ignored
+      - id: detect-private-key      # belt-and-braces alongside gitleaks
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: check-yaml
+        args: [--unsafe]            # allow YAML anchors in config files
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]

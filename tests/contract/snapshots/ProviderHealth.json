@@ -1,0 +1,92 @@
+{
+  "$defs": {
+    "CircuitState": {
+      "enum": [
+        "closed",
+        "open",
+        "half_open"
+      ],
+      "title": "CircuitState",
+      "type": "string"
+    },
+    "ProviderName": {
+      "enum": [
+        "groq",
+        "openrouter",
+        "nvidia_nim"
+      ],
+      "title": "ProviderName",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "circuit_state": {
+      "$ref": "#/$defs/CircuitState"
+    },
+    "consecutive_failures": {
+      "title": "Consecutive Failures",
+      "type": "integer"
+    },
+    "cooldown_until": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cooldown Until"
+    },
+    "last_success_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Last Success At"
+    },
+    "p50_latency_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "P50 Latency Ms"
+    },
+    "p95_latency_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "P95 Latency Ms"
+    },
+    "provider": {
+      "$ref": "#/$defs/ProviderName"
+    }
+  },
+  "required": [
+    "provider",
+    "circuit_state",
+    "consecutive_failures"
+  ],
+  "title": "ProviderHealth",
+  "type": "object"
+}

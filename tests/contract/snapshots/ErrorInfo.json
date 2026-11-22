@@ -1,0 +1,29 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "code": {
+      "title": "Code",
+      "type": "string"
+    },
+    "http_status": {
+      "title": "Http Status",
+      "type": "integer"
+    },
+    "message": {
+      "title": "Message",
+      "type": "string"
+    },
+    "type": {
+      "title": "Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "http_status",
+    "type",
+    "code",
+    "message"
+  ],
+  "title": "ErrorInfo",
+  "type": "object"
+}

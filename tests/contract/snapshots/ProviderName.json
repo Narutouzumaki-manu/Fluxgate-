@@ -1,0 +1,8 @@
+{
+  "__type": "StrEnum",
+  "values": [
+    "groq",
+    "nvidia_nim",
+    "openrouter"
+  ]
+}

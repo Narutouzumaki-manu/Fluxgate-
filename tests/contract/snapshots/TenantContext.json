@@ -1,0 +1,54 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "allowed_models": {
+      "anyOf": [
+        {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Allowed Models"
+    },
+    "cache_enabled": {
+      "default": true,
+      "title": "Cache Enabled",
+      "type": "boolean"
+    },
+    "guardrail_policy": {
+      "default": "default",
+      "title": "Guardrail Policy",
+      "type": "string"
+    },
+    "key_id": {
+      "title": "Key Id",
+      "type": "string"
+    },
+    "key_prefix": {
+      "title": "Key Prefix",
+      "type": "string"
+    },
+    "rpm_limit": {
+      "default": 60,
+      "title": "Rpm Limit",
+      "type": "integer"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "tenant_id",
+    "key_id",
+    "key_prefix"
+  ],
+  "title": "TenantContext",
+  "type": "object"
+}

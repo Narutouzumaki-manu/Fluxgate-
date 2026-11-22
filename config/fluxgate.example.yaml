@@ -1,0 +1,163 @@
+# FluxGate — Example Server Configuration
+# Copy to config/fluxgate.yaml and edit for your environment.
+# Source of truth for structure: docs/ARCHITECTURE_BLUEPRINT.md §5 and TRD §D1.
+# Every key here maps to a field in shared/config.py (pydantic-settings).
+#
+# Secrets MUST come from environment variables or .env, never from this file.
+# Provider API keys are set via environment: GROQ_API_KEY, OPENROUTER_API_KEY,
+# NVIDIA_API_KEY.  Admin token: FLUXGATE_ADMIN_TOKEN.  Key pepper:
+# FLUXGATE_KEY_PEPPER.
+#
+# Zero-cost project constraint (D-006): zero_cost_mode defaults to true.
+# All free-tier defaults are pre-configured below.
+
+# ---------------------------------------------------------------------------
+# HTTP server
+# ---------------------------------------------------------------------------
+server:
+  host: 0.0.0.0
+  port: 8000
+  # Maximum request body size in bytes (1 MiB).  Excess → 413 request_too_large.
+  max_body_bytes: 1048576
+  # Hard server-side deadline per request (seconds); exceed → 504.
+  request_deadline_s: 90
+  # Semaphore for concurrent in-flight requests.  Excess → 429 fluxgate_overloaded.
+  max_inflight_requests: 64
+  # When true, /admin/* and /dashboard/* only accept connections from loopback
+  # (127.x / ::1).  Non-loopback → 403.  Set false only behind a trusted proxy.
+  admin_bind_local_only: true
+
+# ---------------------------------------------------------------------------
+# Zero-cost mode (D-006): restricts routing to free-tier model aliases only.
+# In zero-cost mode a request for a non-free alias → 403 fluxgate_model_not_free.
+# ---------------------------------------------------------------------------
+zero_cost_mode: true
+
+# ---------------------------------------------------------------------------
+# Guardrails (prompt injection, PII, secrets — Member 1 subsystem)
+# ---------------------------------------------------------------------------
+guardrails:
+  # Name of the default guardrail policy file (without .yaml) in policies_dir.
+  default_policy: default
+  # Hard deadline (ms) for the entire inspect_inbound call.  On timeout/error →
+  # on_internal_error action (block by default, D-003).
+  guardrail_timeout_ms: 250
+  # Total character count threshold above which CPU-bound scans run via
+  # asyncio.to_thread rather than inline.  Keeps the event loop responsive.
+  offload_chars: 20000
+  # Directory containing named policy YAML files (default.yaml, strict.yaml, …).
+  policies_dir: config/policies
+
+# ---------------------------------------------------------------------------
+# Cache (dual-layer semantic cache — Member 1 subsystem)
+# ---------------------------------------------------------------------------
+cache:
+  enabled: true
+
+  # L1: in-memory LRU (exact match; backed by SQLite for cold-start promotion)
+  l1:
+    # Maximum number of decoded ChatCompletionResponse objects held in RAM.
+    max_entries: 2000
+    # Maximum total bytes of decoded responses held in RAM (64 MiB).
+    max_bytes: 67108864
+
+  # L2: semantic (embedding + per-tenant FAISS IndexIDMap2(IndexFlatIP))
+  l2:
+    # Cosine-similarity threshold for a semantic hit.  Final value set by
+    # Phase 4 threshold sweep (TRD §D4); tunable per-tenant via DB.
+    threshold: 0.92
+    # Requests with temperature > l2_max_temperature are not L2-eligible.
+    # Omitted temperature is treated as 1.0 → ineligible by default.
+    max_temperature: 0.5
+    # Number of nearest-neighbour candidates to retrieve from FAISS.
+    top_k: 5
+    # Numeric/negation entity guard against semantic near-collisions (ADR-07 / A7.7 #4).
+    entity_guard: true
+    # Path to the all-MiniLM-L6-v2 model directory (pinned revision).
+    # Download with: python scripts/download_models.py
+    model_path: ./models/all-MiniLM-L6-v2
+
+  # Default TTL for new cache entries (seconds; 24 hours).
+  default_ttl_s: 86400
+  # Maximum TTL a client may request (seconds; 7 days).
+  max_ttl_s: 604800
+  # Per-tenant FAISS capacity cap.
+  max_entries_per_tenant: 50000
+  # Global FAISS vector count cap across all tenants.
+  max_total_vectors: 200000
+  # Responses larger than this (bytes) are not stored (256 KiB).
+  max_response_bytes: 262144
+  # Interval between TTL sweeper runs (seconds).
+  sweeper_interval_s: 60
+
+# ---------------------------------------------------------------------------
+# Router (multi-provider resilience — Member 2 subsystem)
+# ---------------------------------------------------------------------------
+router:
+  # Provider priority order (lower index = higher preference).
+  # Must match provider IDs in shared/db/migrations/0004_seed_config.sql.
+  priority:
+    - groq
+    - openrouter
+    - nvidia_nim
+
+  # Circuit breaker defaults (can be overridden per provider in providers.yaml).
+  circuit_breaker:
+    # Consecutive counted failures before OPEN.
+    failure_threshold: 5
+    # Sliding window for error-rate trip (seconds).
+    window_s: 60
+    # Minimum calls in window before error-rate trip activates.
+    min_calls: 10
+    # Error-rate threshold to trip (0.5 = 50%).
+    error_rate_threshold: 0.5
+    # Seconds in OPEN before transitioning to HALF_OPEN.
+    recovery_s: 30
+    # Backoff multiplier applied to recovery_s on consecutive failed recoveries.
+    recovery_backoff: 2
+    # Maximum recovery wait (seconds).
+    recovery_max_s: 300
+    # Concurrent probe requests allowed in HALF_OPEN.
+    half_open_max_probes: 1
+    # Consecutive probe successes required to CLOSE.
+    half_open_success_threshold: 2
+
+  # 429 / rate-limit cooldown
+  rate_limit_cooldown:
+    # Base cooldown (seconds) when provider returns 429 without Retry-After.
+    base_s: 10
+    # Maximum cooldown (seconds; exponential back-off capped here).
+    max_s: 300
+
+  # HTTP timeout settings for provider calls.
+  timeouts:
+    connect_s: 5
+    read_s: 60
+    # Per-chunk idle timeout during SSE streaming (seconds).
+    stream_idle_s: 30
+
+# ---------------------------------------------------------------------------
+# Telemetry (async queue → batch SQLite writer — Member 2 subsystem)
+# ---------------------------------------------------------------------------
+telemetry:
+  # asyncio.Queue maxsize; on full → drop oldest + increment telemetry_dropped.
+  queue_size: 10000
+  # Maximum milliseconds between writer flushes (even if batch not full).
+  flush_ms: 500
+  # Flush when this many events have accumulated.
+  flush_batch: 100
+  # Retention limits (days); enforcement by hourly maintenance job.
+  retention_days:
+    request_logs: 14          # clean rows (no security findings)
+    security_events: 30       # rows with findings; security_events cascade
+    circuit_events: 30
+    metrics_rollup: 90
+
+# ---------------------------------------------------------------------------
+# Privacy / data minimisation
+# ---------------------------------------------------------------------------
+privacy:
+  # Store a sanitized (redacted) preview of the first <=80 chars of each prompt
+  # in request_logs.  ON in dev (D-004); set false for strict/prod deployments.
+  # Hashes and char-counts are always stored regardless.
+  store_prompt_preview: true

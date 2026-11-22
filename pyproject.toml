@@ -112,7 +112,8 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["S101", "S105", "S106"]      # asserts and fake canary secrets are expected in tests
-"scripts/**" = ["S101"]
+"scripts/**" = ["S101", "B008", "ASYNC240"]
+"shared/contracts/enums.py" = ["S105"]
 "integration/benchmarks/**" = ["S101", "S105", "S106"]
 
 [tool.ruff.format]

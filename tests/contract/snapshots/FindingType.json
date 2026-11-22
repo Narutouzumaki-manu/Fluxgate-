@@ -1,0 +1,20 @@
+{
+  "__type": "StrEnum",
+  "values": [
+    "custom",
+    "indirect_injection",
+    "jailbreak",
+    "obfuscation",
+    "pii_aadhaar",
+    "pii_card",
+    "pii_email",
+    "pii_pan",
+    "pii_phone",
+    "prompt_injection",
+    "prompt_leak_attempt",
+    "secret_api_key",
+    "secret_high_entropy",
+    "secret_private_key",
+    "secret_token"
+  ]
+}

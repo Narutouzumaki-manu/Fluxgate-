@@ -1,0 +1,8 @@
+{
+  "__type": "StrEnum",
+  "values": [
+    "allow",
+    "block",
+    "warn"
+  ]
+}

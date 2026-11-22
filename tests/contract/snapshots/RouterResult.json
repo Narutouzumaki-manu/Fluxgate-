@@ -1,0 +1,354 @@
+{
+  "$defs": {
+    "ChatCompletionChoice": {
+      "additionalProperties": true,
+      "properties": {
+        "finish_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finish Reason"
+        },
+        "index": {
+          "default": 0,
+          "title": "Index",
+          "type": "integer"
+        },
+        "message": {
+          "$ref": "#/$defs/ChatMessage"
+        }
+      },
+      "required": [
+        "message"
+      ],
+      "title": "ChatCompletionChoice",
+      "type": "object"
+    },
+    "ChatCompletionResponse": {
+      "additionalProperties": true,
+      "properties": {
+        "choices": {
+          "items": {
+            "$ref": "#/$defs/ChatCompletionChoice"
+          },
+          "title": "Choices",
+          "type": "array"
+        },
+        "created": {
+          "title": "Created",
+          "type": "integer"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "object": {
+          "const": "chat.completion",
+          "default": "chat.completion",
+          "title": "Object",
+          "type": "string"
+        },
+        "system_fingerprint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Fingerprint"
+        },
+        "usage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ChatCompletionUsage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "created",
+        "model",
+        "choices"
+      ],
+      "title": "ChatCompletionResponse",
+      "type": "object"
+    },
+    "ChatCompletionUsage": {
+      "additionalProperties": true,
+      "properties": {
+        "completion_tokens": {
+          "default": 0,
+          "title": "Completion Tokens",
+          "type": "integer"
+        },
+        "prompt_tokens": {
+          "default": 0,
+          "title": "Prompt Tokens",
+          "type": "integer"
+        },
+        "total_tokens": {
+          "default": 0,
+          "title": "Total Tokens",
+          "type": "integer"
+        }
+      },
+      "title": "ChatCompletionUsage",
+      "type": "object"
+    },
+    "ChatMessage": {
+      "additionalProperties": true,
+      "properties": {
+        "content": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "role": {
+          "enum": [
+            "system",
+            "developer",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "tool_call_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Call Id"
+        },
+        "tool_calls": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Calls"
+        }
+      },
+      "required": [
+        "role"
+      ],
+      "title": "ChatMessage",
+      "type": "object"
+    },
+    "CircuitState": {
+      "enum": [
+        "closed",
+        "open",
+        "half_open"
+      ],
+      "title": "CircuitState",
+      "type": "string"
+    },
+    "ProviderName": {
+      "enum": [
+        "groq",
+        "openrouter",
+        "nvidia_nim"
+      ],
+      "title": "ProviderName",
+      "type": "string"
+    },
+    "RouteAttempt": {
+      "additionalProperties": false,
+      "properties": {
+        "circuit_state_at_start": {
+          "$ref": "#/$defs/CircuitState"
+        },
+        "failure": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RouteFailureKind"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "http_status": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Http Status"
+        },
+        "latency_ms": {
+          "title": "Latency Ms",
+          "type": "number"
+        },
+        "model_id": {
+          "title": "Model Id",
+          "type": "string"
+        },
+        "provider": {
+          "$ref": "#/$defs/ProviderName"
+        },
+        "retry_after_seconds": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retry After Seconds"
+        },
+        "retry_safe": {
+          "default": false,
+          "title": "Retry Safe",
+          "type": "boolean"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "provider",
+        "model_id",
+        "started_at",
+        "latency_ms",
+        "circuit_state_at_start"
+      ],
+      "title": "RouteAttempt",
+      "type": "object"
+    },
+    "RouteFailureKind": {
+      "enum": [
+        "rate_limited",
+        "upstream_5xx",
+        "timeout",
+        "connect_error",
+        "circuit_open",
+        "bad_request",
+        "auth_error",
+        "stream_interrupted",
+        "client_disconnected"
+      ],
+      "title": "RouteFailureKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "attempts": {
+      "items": {
+        "$ref": "#/$defs/RouteAttempt"
+      },
+      "title": "Attempts",
+      "type": "array"
+    },
+    "model_served": {
+      "title": "Model Served",
+      "type": "string"
+    },
+    "provider": {
+      "$ref": "#/$defs/ProviderName"
+    },
+    "response": {
+      "$ref": "#/$defs/ChatCompletionResponse"
+    },
+    "ttft_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ttft Ms"
+    },
+    "usage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ChatCompletionUsage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "response",
+    "provider",
+    "model_served",
+    "attempts"
+  ],
+  "title": "RouterResult",
+  "type": "object"
+}

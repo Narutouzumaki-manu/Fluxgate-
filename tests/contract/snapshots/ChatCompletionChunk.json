@@ -1,0 +1,150 @@
+{
+  "$defs": {
+    "ChatCompletionChunkChoice": {
+      "additionalProperties": true,
+      "properties": {
+        "delta": {
+          "$ref": "#/$defs/ChatCompletionChunkDelta"
+        },
+        "finish_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Finish Reason"
+        },
+        "index": {
+          "default": 0,
+          "title": "Index",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "delta"
+      ],
+      "title": "ChatCompletionChunkChoice",
+      "type": "object"
+    },
+    "ChatCompletionChunkDelta": {
+      "additionalProperties": true,
+      "properties": {
+        "content": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Role"
+        },
+        "tool_calls": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Calls"
+        }
+      },
+      "title": "ChatCompletionChunkDelta",
+      "type": "object"
+    },
+    "ChatCompletionUsage": {
+      "additionalProperties": true,
+      "properties": {
+        "completion_tokens": {
+          "default": 0,
+          "title": "Completion Tokens",
+          "type": "integer"
+        },
+        "prompt_tokens": {
+          "default": 0,
+          "title": "Prompt Tokens",
+          "type": "integer"
+        },
+        "total_tokens": {
+          "default": 0,
+          "title": "Total Tokens",
+          "type": "integer"
+        }
+      },
+      "title": "ChatCompletionUsage",
+      "type": "object"
+    }
+  },
+  "additionalProperties": true,
+  "properties": {
+    "choices": {
+      "items": {
+        "$ref": "#/$defs/ChatCompletionChunkChoice"
+      },
+      "title": "Choices",
+      "type": "array"
+    },
+    "created": {
+      "title": "Created",
+      "type": "integer"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "model": {
+      "title": "Model",
+      "type": "string"
+    },
+    "object": {
+      "const": "chat.completion.chunk",
+      "default": "chat.completion.chunk",
+      "title": "Object",
+      "type": "string"
+    },
+    "usage": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ChatCompletionUsage"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "id",
+    "created",
+    "model",
+    "choices"
+  ],
+  "title": "ChatCompletionChunk",
+  "type": "object"
+}

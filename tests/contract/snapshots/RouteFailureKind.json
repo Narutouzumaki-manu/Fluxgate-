@@ -1,0 +1,14 @@
+{
+  "__type": "StrEnum",
+  "values": [
+    "auth_error",
+    "bad_request",
+    "circuit_open",
+    "client_disconnected",
+    "connect_error",
+    "rate_limited",
+    "stream_interrupted",
+    "timeout",
+    "upstream_5xx"
+  ]
+}

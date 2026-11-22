@@ -1,0 +1,115 @@
+# FluxGate — Default Guardrail Policy
+# Owner: Member 1.  Reviewer: Member 2.
+# Source of truth: docs/ARCHITECTURE_BLUEPRINT.md §10.4, TRD §A2.3, D-003, D-004, D-007.
+#
+# policy_version is computed at load time as sha256(canonical_json(policy))[:16]
+# and injected into the GuardrailPolicy object by guardrails/policy.py.
+# It becomes part of every L1/L2 cache key and compat hash.
+#
+# Placeholder syntax (D-007, TRD §A5.1):
+#   [[FG:<TYPE>:<N>:<nonce>]]
+#   where TYPE ∈ {EMAIL, PHONE, AADHAAR, PAN, CARD, SECRET, KEY, CUSTOM}
+#   N = per-type counter per request (same value → same placeholder)
+#   nonce = 4 random hex chars per request (prevents forgery)
+#
+# Any literal [[FG: in input is neutralized as a CUSTOM finding and redacted.
+
+name: default
+
+# ---------------------------------------------------------------------------
+# Injection / jailbreak risk thresholds (ADR-15, TRD §A3.3)
+# ---------------------------------------------------------------------------
+# WARN if risk_score >= injection_warn_threshold  (request forwarded, caching off)
+injection_warn_threshold: 0.50
+# BLOCK if risk_score >= injection_block_threshold
+injection_block_threshold: 0.85
+
+# ---------------------------------------------------------------------------
+# Inspection scope
+# ---------------------------------------------------------------------------
+# Scan system/developer messages for injection patterns.
+# Note: injection rules are down-weighted ×0.5 for operator-controlled sources;
+# PII and secret detection always run regardless.
+inspect_system_messages: true
+# Scan retrieved_context chunks (fluxgate.retrieved_context) for indirect injection.
+inspect_retrieved_context: true
+
+# ---------------------------------------------------------------------------
+# Input size controls
+# ---------------------------------------------------------------------------
+# Total characters scanned across all messages/chunks per request.
+# Inputs beyond this limit trigger the on_oversize action.
+max_inspect_chars: 200000
+# Action when input exceeds max_inspect_chars: warn | block
+# warn = scan first 100k + last 50k chars, add OBFUSCATION/truncated finding
+on_oversize: warn
+
+# ---------------------------------------------------------------------------
+# Error / timeout handling (D-003: default = block)
+# ---------------------------------------------------------------------------
+# Action on guardrail internal error or guardrail_timeout_ms exceeded:
+#   block → 503 fluxgate_guardrail_unavailable; degraded=true in trace
+#   warn  → forward with degraded=true (permissive tenants may override)
+on_internal_error: block
+
+# ---------------------------------------------------------------------------
+# PII type policies
+# Type keys are FindingType enum values (see shared/contracts/enums.py).
+# action: allow | warn | redact | block
+# restore_in_response: replace placeholder back in model output (request-scoped vault)
+# Secrets are NEVER restorable regardless of this flag (hard-coded in redactor).
+# ---------------------------------------------------------------------------
+pii:
+  pii_email:
+    action: redact
+    restore_in_response: false
+  pii_phone:
+    action: redact
+    restore_in_response: false
+  pii_aadhaar:
+    action: redact
+    restore_in_response: false
+  pii_pan:
+    action: redact
+    restore_in_response: false
+  pii_card:
+    action: redact
+    restore_in_response: false
+
+# ---------------------------------------------------------------------------
+# Secret policy (applies to all secret_* finding types)
+# ---------------------------------------------------------------------------
+secrets:
+  action: redact              # default: warn in dev, redact in production
+  restore_in_response: false  # secrets are NEVER restored even if set true
+
+# ---------------------------------------------------------------------------
+# Response scanning action (non-stream responses and stream flush)
+# Applied when the model output contains PII or secrets.
+# redact = replace with placeholder in returned text; block = 502
+# ---------------------------------------------------------------------------
+response_scan: redact
+
+# ---------------------------------------------------------------------------
+# Cache risk gate (entries with risk_score above this are not stored)
+# (Duplicates the config/fluxgate.example.yaml value; policy takes precedence.)
+# ---------------------------------------------------------------------------
+cache_max_risk: 0.30
+
+# ---------------------------------------------------------------------------
+# Prompt preview storage (D-004)
+# true = store up to 80 sanitized chars in request_logs.sanitized_preview
+# Override: set FLUXGATE_STORE_PROMPT_PREVIEW=false in env for prod.
+# ---------------------------------------------------------------------------
+store_prompt_preview: true   # dev default; strict policy sets false
+
+# ---------------------------------------------------------------------------
+# Custom regex patterns (optional; must be linear-time-safe)
+# Format: { name: regex_pattern }
+# The engine validates each pattern by compiling it and running an adversarial
+# probe before accepting it.  Any backtracking-unsafe pattern is rejected.
+# Example:
+#   custom_patterns:
+#     employee_id: '\bEMP-\d{6}\b'
+# ---------------------------------------------------------------------------
+custom_patterns: {}

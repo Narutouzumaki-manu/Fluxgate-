@@ -1,0 +1,508 @@
+{
+  "$defs": {
+    "ChatCompletionRequest": {
+      "additionalProperties": true,
+      "properties": {
+        "fluxgate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FluxGateOptions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max_completion_tokens": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Completion Tokens"
+        },
+        "max_tokens": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Tokens"
+        },
+        "messages": {
+          "items": {
+            "$ref": "#/$defs/ChatMessage"
+          },
+          "minItems": 1,
+          "title": "Messages",
+          "type": "array"
+        },
+        "model": {
+          "title": "Model",
+          "type": "string"
+        },
+        "n": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "N"
+        },
+        "response_format": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Response Format"
+        },
+        "seed": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Seed"
+        },
+        "stop": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stop"
+        },
+        "stream": {
+          "default": false,
+          "title": "Stream",
+          "type": "boolean"
+        },
+        "stream_options": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stream Options"
+        },
+        "temperature": {
+          "anyOf": [
+            {
+              "maximum": 2,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Temperature"
+        },
+        "tool_choice": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Choice"
+        },
+        "tools": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tools"
+        },
+        "top_p": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Top P"
+        },
+        "user": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "User"
+        }
+      },
+      "required": [
+        "model",
+        "messages"
+      ],
+      "title": "ChatCompletionRequest",
+      "type": "object"
+    },
+    "ChatMessage": {
+      "additionalProperties": true,
+      "properties": {
+        "content": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "role": {
+          "enum": [
+            "system",
+            "developer",
+            "user",
+            "assistant",
+            "tool"
+          ],
+          "title": "Role",
+          "type": "string"
+        },
+        "tool_call_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Call Id"
+        },
+        "tool_calls": {
+          "anyOf": [
+            {
+              "items": {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tool Calls"
+        }
+      },
+      "required": [
+        "role"
+      ],
+      "title": "ChatMessage",
+      "type": "object"
+    },
+    "FluxGateOptions": {
+      "additionalProperties": false,
+      "description": "Optional extension (body field `fluxgate`). Never required.\n\nStripped by the gateway before the provider call; retained in the *sanitized* request\ninside FluxGate so the cache can use `semantic_query`, `context_fingerprint`, `cache_scope`.",
+      "properties": {
+        "cache": {
+          "default": "auto",
+          "enum": [
+            "auto",
+            "bypass",
+            "exact_only"
+          ],
+          "title": "Cache",
+          "type": "string"
+        },
+        "cache_scope": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z0-9_.:-]{1,64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cache Scope"
+        },
+        "context_fingerprint": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Context Fingerprint"
+        },
+        "guardrail_policy": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Guardrail Policy"
+        },
+        "retrieved_context": {
+          "anyOf": [
+            {
+              "items": {
+                "$ref": "#/$defs/RetrievedChunk"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrieved Context"
+        },
+        "semantic_query": {
+          "anyOf": [
+            {
+              "maxLength": 2000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Semantic Query"
+        }
+      },
+      "title": "FluxGateOptions",
+      "type": "object"
+    },
+    "ProviderName": {
+      "enum": [
+        "groq",
+        "openrouter",
+        "nvidia_nim"
+      ],
+      "title": "ProviderName",
+      "type": "string"
+    },
+    "RetrievedChunk": {
+      "additionalProperties": false,
+      "properties": {
+        "chunk_id": {
+          "maxLength": 128,
+          "title": "Chunk Id",
+          "type": "string"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "maxLength": 512,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "text": {
+          "maxLength": 32000,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "chunk_id",
+        "text"
+      ],
+      "title": "RetrievedChunk",
+      "type": "object"
+    },
+    "TenantContext": {
+      "additionalProperties": false,
+      "properties": {
+        "allowed_models": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Allowed Models"
+        },
+        "cache_enabled": {
+          "default": true,
+          "title": "Cache Enabled",
+          "type": "boolean"
+        },
+        "guardrail_policy": {
+          "default": "default",
+          "title": "Guardrail Policy",
+          "type": "string"
+        },
+        "key_id": {
+          "title": "Key Id",
+          "type": "string"
+        },
+        "key_prefix": {
+          "title": "Key Prefix",
+          "type": "string"
+        },
+        "rpm_limit": {
+          "default": 60,
+          "title": "Rpm Limit",
+          "type": "integer"
+        },
+        "tenant_id": {
+          "title": "Tenant Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenant_id",
+        "key_id",
+        "key_prefix"
+      ],
+      "title": "TenantContext",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "deadline_seconds": {
+      "default": 60.0,
+      "title": "Deadline Seconds",
+      "type": "number"
+    },
+    "preferred_provider": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ProviderName"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "request": {
+      "$ref": "#/$defs/ChatCompletionRequest"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "tenant": {
+      "$ref": "#/$defs/TenantContext"
+    }
+  },
+  "required": [
+    "request_id",
+    "tenant",
+    "request"
+  ],
+  "title": "RouterRequest",
+  "type": "object"
+}

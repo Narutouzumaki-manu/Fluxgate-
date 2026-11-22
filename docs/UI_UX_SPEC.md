@@ -130,6 +130,7 @@ Global tenant/range; local: key, model alias, served-from. Filters persist in th
 See §9. First-run empty state includes a copy-paste snippet:
 ```python
 from openai import OpenAI
+
 client = OpenAI(base_url="http://localhost:8000/v1", api_key="fgx-…")
 ```
 

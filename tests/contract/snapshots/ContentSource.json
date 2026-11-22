@@ -1,0 +1,11 @@
+{
+  "__type": "StrEnum",
+  "values": [
+    "assistant",
+    "response",
+    "retrieved_context",
+    "system",
+    "tool",
+    "user"
+  ]
+}

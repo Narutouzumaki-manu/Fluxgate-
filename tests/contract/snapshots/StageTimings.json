@@ -1,0 +1,69 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "auth_ms": {
+      "default": 0,
+      "title": "Auth Ms",
+      "type": "number"
+    },
+    "guardrails_in_ms": {
+      "default": 0,
+      "title": "Guardrails In Ms",
+      "type": "number"
+    },
+    "guardrails_out_ms": {
+      "default": 0,
+      "title": "Guardrails Out Ms",
+      "type": "number"
+    },
+    "l1_ms": {
+      "default": 0,
+      "title": "L1 Ms",
+      "type": "number"
+    },
+    "l2_ms": {
+      "default": 0,
+      "title": "L2 Ms",
+      "type": "number"
+    },
+    "parse_ms": {
+      "default": 0,
+      "title": "Parse Ms",
+      "type": "number"
+    },
+    "ratelimit_ms": {
+      "default": 0,
+      "title": "Ratelimit Ms",
+      "type": "number"
+    },
+    "router_overhead_ms": {
+      "default": 0,
+      "title": "Router Overhead Ms",
+      "type": "number"
+    },
+    "total_ms": {
+      "default": 0,
+      "title": "Total Ms",
+      "type": "number"
+    },
+    "ttft_ms": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ttft Ms"
+    },
+    "upstream_ms": {
+      "default": 0,
+      "title": "Upstream Ms",
+      "type": "number"
+    }
+  },
+  "title": "StageTimings",
+  "type": "object"
+}

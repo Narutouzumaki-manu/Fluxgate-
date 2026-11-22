@@ -1,0 +1,461 @@
+{
+  "$defs": {
+    "CacheBypassReason": {
+      "enum": [
+        "client_opt_out",
+        "cache_disabled",
+        "high_temperature",
+        "tools_present",
+        "multimodal",
+        "n_greater_than_one",
+        "pii_or_secret_present",
+        "guardrail_not_clean",
+        "risk_above_threshold",
+        "response_not_clean",
+        "incomplete_response",
+        "non_stop_finish",
+        "too_large",
+        "cache_error",
+        "tenant_quota_exceeded"
+      ],
+      "title": "CacheBypassReason",
+      "type": "string"
+    },
+    "CacheOutcome": {
+      "enum": [
+        "hit_l1",
+        "hit_l2",
+        "miss",
+        "bypass"
+      ],
+      "title": "CacheOutcome",
+      "type": "string"
+    },
+    "Decision": {
+      "enum": [
+        "allow",
+        "warn",
+        "block"
+      ],
+      "title": "Decision",
+      "type": "string"
+    },
+    "ProviderName": {
+      "enum": [
+        "groq",
+        "openrouter",
+        "nvidia_nim"
+      ],
+      "title": "ProviderName",
+      "type": "string"
+    },
+    "StageTimings": {
+      "additionalProperties": false,
+      "properties": {
+        "auth_ms": {
+          "default": 0,
+          "title": "Auth Ms",
+          "type": "number"
+        },
+        "guardrails_in_ms": {
+          "default": 0,
+          "title": "Guardrails In Ms",
+          "type": "number"
+        },
+        "guardrails_out_ms": {
+          "default": 0,
+          "title": "Guardrails Out Ms",
+          "type": "number"
+        },
+        "l1_ms": {
+          "default": 0,
+          "title": "L1 Ms",
+          "type": "number"
+        },
+        "l2_ms": {
+          "default": 0,
+          "title": "L2 Ms",
+          "type": "number"
+        },
+        "parse_ms": {
+          "default": 0,
+          "title": "Parse Ms",
+          "type": "number"
+        },
+        "ratelimit_ms": {
+          "default": 0,
+          "title": "Ratelimit Ms",
+          "type": "number"
+        },
+        "router_overhead_ms": {
+          "default": 0,
+          "title": "Router Overhead Ms",
+          "type": "number"
+        },
+        "total_ms": {
+          "default": 0,
+          "title": "Total Ms",
+          "type": "number"
+        },
+        "ttft_ms": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ttft Ms"
+        },
+        "upstream_ms": {
+          "default": 0,
+          "title": "Upstream Ms",
+          "type": "number"
+        }
+      },
+      "title": "StageTimings",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Persisted subset of a request. No bodies, no raw sensitive values (enforced by a test).",
+  "properties": {
+    "attempt_count": {
+      "default": 0,
+      "title": "Attempt Count",
+      "type": "integer"
+    },
+    "attempts_summary": {
+      "items": {
+        "additionalProperties": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": "object"
+      },
+      "title": "Attempts Summary",
+      "type": "array"
+    },
+    "bypass_reason": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CacheBypassReason"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "cache_entry_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cache Entry Id"
+    },
+    "cache_outcome": {
+      "$ref": "#/$defs/CacheOutcome"
+    },
+    "client_disconnected": {
+      "default": false,
+      "title": "Client Disconnected",
+      "type": "boolean"
+    },
+    "client_ip_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Client Ip Hash"
+    },
+    "compat_mismatch": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Compat Mismatch"
+    },
+    "completion_tokens": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Completion Tokens"
+    },
+    "cost_saved_usd_est": {
+      "title": "Cost Saved Usd Est",
+      "type": "number"
+    },
+    "created_at_unix_ms": {
+      "title": "Created At Unix Ms",
+      "type": "integer"
+    },
+    "decision": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Decision"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "degraded": {
+      "default": false,
+      "title": "Degraded",
+      "type": "boolean"
+    },
+    "error_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Error Code"
+    },
+    "failed_over": {
+      "default": false,
+      "title": "Failed Over",
+      "type": "boolean"
+    },
+    "finding_summary": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Finding Summary",
+      "type": "object"
+    },
+    "key_id": {
+      "title": "Key Id",
+      "type": "string"
+    },
+    "model_requested": {
+      "title": "Model Requested",
+      "type": "string"
+    },
+    "model_served": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Model Served"
+    },
+    "near_miss_similarity": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Near Miss Similarity"
+    },
+    "policy_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Policy Name"
+    },
+    "policy_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Policy Version"
+    },
+    "prompt_chars": {
+      "title": "Prompt Chars",
+      "type": "integer"
+    },
+    "prompt_sha256": {
+      "title": "Prompt Sha256",
+      "type": "string"
+    },
+    "prompt_tokens": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Prompt Tokens"
+    },
+    "provider": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ProviderName"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "redaction_count": {
+      "title": "Redaction Count",
+      "type": "integer"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    },
+    "risk_score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Risk Score"
+    },
+    "sanitized_preview": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sanitized Preview"
+    },
+    "served_from": {
+      "title": "Served From",
+      "type": "string"
+    },
+    "similarity": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Similarity"
+    },
+    "status_code": {
+      "title": "Status Code",
+      "type": "integer"
+    },
+    "store_stored": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Store Stored"
+    },
+    "streamed": {
+      "title": "Streamed",
+      "type": "boolean"
+    },
+    "tenant_id": {
+      "title": "Tenant Id",
+      "type": "string"
+    },
+    "timings": {
+      "$ref": "#/$defs/StageTimings"
+    },
+    "tokens_saved": {
+      "title": "Tokens Saved",
+      "type": "integer"
+    },
+    "usage_estimated": {
+      "default": false,
+      "title": "Usage Estimated",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "request_id",
+    "tenant_id",
+    "key_id",
+    "created_at_unix_ms",
+    "model_requested",
+    "model_served",
+    "provider",
+    "served_from",
+    "streamed",
+    "status_code",
+    "cache_outcome",
+    "similarity",
+    "near_miss_similarity",
+    "bypass_reason",
+    "decision",
+    "risk_score",
+    "finding_summary",
+    "redaction_count",
+    "prompt_tokens",
+    "completion_tokens",
+    "tokens_saved",
+    "cost_saved_usd_est",
+    "timings",
+    "attempts_summary",
+    "prompt_sha256",
+    "prompt_chars"
+  ],
+  "title": "RequestTrace",
+  "type": "object"
+}

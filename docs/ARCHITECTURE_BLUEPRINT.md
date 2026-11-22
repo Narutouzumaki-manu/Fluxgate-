@@ -402,17 +402,29 @@ These are the **specification** of `shared/contracts/*`. They are copied verbati
 ```python
 from enum import StrEnum
 
+
 class Decision(StrEnum):
     ALLOW = "allow"
     WARN = "warn"
     BLOCK = "block"
 
+
 class Severity(StrEnum):
-    INFO = "info"; LOW = "low"; MEDIUM = "medium"; HIGH = "high"; CRITICAL = "critical"
+    INFO = "info"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
 
 class ContentSource(StrEnum):
-    SYSTEM = "system"; USER = "user"; ASSISTANT = "assistant"; TOOL = "tool"
-    RETRIEVED_CONTEXT = "retrieved_context"; RESPONSE = "response"
+    SYSTEM = "system"
+    USER = "user"
+    ASSISTANT = "assistant"
+    TOOL = "tool"
+    RETRIEVED_CONTEXT = "retrieved_context"
+    RESPONSE = "response"
+
 
 class FindingType(StrEnum):
     PROMPT_INJECTION = "prompt_injection"
@@ -431,14 +443,26 @@ class FindingType(StrEnum):
     SECRET_HIGH_ENTROPY = "secret_high_entropy"
     CUSTOM = "custom"
 
+
 class RedactionAction(StrEnum):
-    ALLOW = "allow"; WARN = "warn"; REDACT = "redact"; BLOCK = "block"
+    ALLOW = "allow"
+    WARN = "warn"
+    REDACT = "redact"
+    BLOCK = "block"
+
 
 class GuardrailStage(StrEnum):
-    INBOUND = "inbound"; RESPONSE = "response"; STREAM = "stream"
+    INBOUND = "inbound"
+    RESPONSE = "response"
+    STREAM = "stream"
+
 
 class CacheOutcome(StrEnum):
-    HIT_L1 = "hit_l1"; HIT_L2 = "hit_l2"; MISS = "miss"; BYPASS = "bypass"
+    HIT_L1 = "hit_l1"
+    HIT_L2 = "hit_l2"
+    MISS = "miss"
+    BYPASS = "bypass"
+
 
 class CacheBypassReason(StrEnum):
     CLIENT_OPT_OUT = "client_opt_out"
@@ -457,17 +481,29 @@ class CacheBypassReason(StrEnum):
     CACHE_ERROR = "cache_error"
     TENANT_QUOTA_EXCEEDED = "tenant_quota_exceeded"
 
+
 class ProviderName(StrEnum):
-    GROQ = "groq"; OPENROUTER = "openrouter"; NVIDIA_NIM = "nvidia_nim"
+    GROQ = "groq"
+    OPENROUTER = "openrouter"
+    NVIDIA_NIM = "nvidia_nim"
+
 
 class CircuitState(StrEnum):
-    CLOSED = "closed"; OPEN = "open"; HALF_OPEN = "half_open"
+    CLOSED = "closed"
+    OPEN = "open"
+    HALF_OPEN = "half_open"
+
 
 class RouteFailureKind(StrEnum):
-    RATE_LIMITED = "rate_limited"; UPSTREAM_5XX = "upstream_5xx"; TIMEOUT = "timeout"
-    CONNECT_ERROR = "connect_error"; CIRCUIT_OPEN = "circuit_open"
-    BAD_REQUEST = "bad_request"; AUTH_ERROR = "auth_error"
-    STREAM_INTERRUPTED = "stream_interrupted"; CLIENT_DISCONNECTED = "client_disconnected"
+    RATE_LIMITED = "rate_limited"
+    UPSTREAM_5XX = "upstream_5xx"
+    TIMEOUT = "timeout"
+    CONNECT_ERROR = "connect_error"
+    CIRCUIT_OPEN = "circuit_open"
+    BAD_REQUEST = "bad_request"
+    AUTH_ERROR = "auth_error"
+    STREAM_INTERRUPTED = "stream_interrupted"
+    CLIENT_DISCONNECTED = "client_disconnected"
 ```
 
 ### 10.2 OpenAI-shaped models — `shared/contracts/openai_models.py`
@@ -475,6 +511,7 @@ class RouteFailureKind(StrEnum):
 ```python
 from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field
+
 
 class ChatMessage(BaseModel):
     model_config = ConfigDict(extra="allow")
@@ -484,24 +521,30 @@ class ChatMessage(BaseModel):
     tool_calls: list[dict[str, Any]] | None = None
     tool_call_id: str | None = None
 
+
 class RetrievedChunk(BaseModel):
     model_config = ConfigDict(extra="forbid")
     chunk_id: str = Field(max_length=128)
     text: str = Field(max_length=32_000)
-    source: str | None = Field(default=None, max_length=512)   # e.g. filename#page
+    source: str | None = Field(default=None, max_length=512)  # e.g. filename#page
+
 
 class FluxGateOptions(BaseModel):
     """Optional extension (body field `fluxgate`). Stripped before upstream. Never required."""
+
     model_config = ConfigDict(extra="forbid")
     cache: Literal["auto", "bypass", "exact_only"] = "auto"
     semantic_query: str | None = Field(default=None, max_length=2_000)
-    context_fingerprint: str | None = Field(default=None, max_length=128)  # hash of retrieved chunk IDs/versions
+    context_fingerprint: str | None = Field(
+        default=None, max_length=128
+    )  # hash of retrieved chunk IDs/versions
     cache_scope: str | None = Field(default=None, pattern=r"^[A-Za-z0-9_.:-]{1,64}$")
     retrieved_context: list[RetrievedChunk] | None = None
     guardrail_policy: str | None = Field(default=None, max_length=64)
 
+
 class ChatCompletionRequest(BaseModel):
-    model_config = ConfigDict(extra="allow")   # pass through unknown OpenAI params
+    model_config = ConfigDict(extra="allow")  # pass through unknown OpenAI params
     model: str
     messages: list[ChatMessage] = Field(min_length=1)
     stream: bool = False
@@ -519,17 +562,20 @@ class ChatCompletionRequest(BaseModel):
     user: str | None = None
     fluxgate: FluxGateOptions | None = None
 
+
 class ChatCompletionUsage(BaseModel):
     model_config = ConfigDict(extra="allow")
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
 
+
 class ChatCompletionChoice(BaseModel):
     model_config = ConfigDict(extra="allow")
     index: int = 0
     message: ChatMessage
     finish_reason: str | None = None
+
 
 class ChatCompletionResponse(BaseModel):
     model_config = ConfigDict(extra="allow")
@@ -541,17 +587,20 @@ class ChatCompletionResponse(BaseModel):
     usage: ChatCompletionUsage | None = None
     system_fingerprint: str | None = None
 
+
 class ChatCompletionChunkDelta(BaseModel):
     model_config = ConfigDict(extra="allow")
     role: str | None = None
     content: str | None = None
     tool_calls: list[dict[str, Any]] | None = None
 
+
 class ChatCompletionChunkChoice(BaseModel):
     model_config = ConfigDict(extra="allow")
     index: int = 0
     delta: ChatCompletionChunkDelta
     finish_reason: str | None = None
+
 
 class ChatCompletionChunk(BaseModel):
     model_config = ConfigDict(extra="allow")
@@ -568,22 +617,24 @@ class ChatCompletionChunk(BaseModel):
 ```python
 from pydantic import BaseModel, ConfigDict, Field
 
+
 class TenantContext(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
-    tenant_id: str                      # isolation boundary for cache, quotas, audit
-    key_id: str                         # virtual_keys.id
-    key_prefix: str                     # e.g. "fgx-ab12"  (never the full key)
+    tenant_id: str  # isolation boundary for cache, quotas, audit
+    key_id: str  # virtual_keys.id
+    key_prefix: str  # e.g. "fgx-ab12"  (never the full key)
     guardrail_policy: str = "default"
     cache_enabled: bool = True
-    allowed_models: list[str] | None = None   # None = all
+    allowed_models: list[str] | None = None  # None = all
     rpm_limit: int = 60
+
 
 class RequestContext(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
-    request_id: str                     # "req_" + ULID
+    request_id: str  # "req_" + ULID
     tenant: TenantContext
     received_at_unix_ms: int
-    client_ip_hash: str | None = None   # salted hash, never raw IP
+    client_ip_hash: str | None = None  # salted hash, never raw IP
     trace_enabled: bool = True
 ```
 
@@ -595,63 +646,71 @@ from pydantic import BaseModel, ConfigDict, Field
 from .enums import *
 from .openai_models import ChatCompletionRequest
 
+
 class Finding(BaseModel):
     """Never contains raw sensitive values."""
+
     model_config = ConfigDict(extra="forbid")
     type: FindingType
     severity: Severity
-    rule_id: str                         # e.g. "INJ-0007", "PII-AADHAAR-VERHOEFF"
+    rule_id: str  # e.g. "INJ-0007", "PII-AADHAAR-VERHOEFF"
     confidence: float = Field(ge=0, le=1)
     source: ContentSource
     message_index: int | None = None
-    chunk_id: str | None = None          # when from retrieved_context
+    chunk_id: str | None = None  # when from retrieved_context
     span: tuple[int, int] | None = None  # offsets in the normalized text of that message
-    masked_preview: str | None = Field(default=None, max_length=64)   # e.g. "AKIA****MPLE"
+    masked_preview: str | None = Field(default=None, max_length=64)  # e.g. "AKIA****MPLE"
     action: RedactionAction = RedactionAction.ALLOW
-    meta: dict[str, str] = Field(default_factory=dict)                # non-sensitive only
+    meta: dict[str, str] = Field(default_factory=dict)  # non-sensitive only
+
 
 class TypePolicy(BaseModel):
     model_config = ConfigDict(extra="forbid")
     action: RedactionAction = RedactionAction.REDACT
-    restore_in_response: bool = False    # replace placeholder back in outputs (request-scoped)
+    restore_in_response: bool = False  # replace placeholder back in outputs (request-scoped)
+
 
 class GuardrailPolicy(BaseModel):
     model_config = ConfigDict(extra="forbid")
     name: str
-    version: str                         # content hash of the normalized policy; part of L1/L2 keys
+    version: str  # content hash of the normalized policy; part of L1/L2 keys
     injection_warn_threshold: float = 0.50
     injection_block_threshold: float = 0.85
     inspect_system_messages: bool = True
     inspect_retrieved_context: bool = True
-    max_inspect_chars: int = 200_000     # beyond → truncate+warn finding, or block (policy-defined)
+    max_inspect_chars: int = 200_000  # beyond → truncate+warn finding, or block (policy-defined)
     on_oversize: Decision = Decision.WARN
-    on_internal_error: Decision = Decision.BLOCK     # strict default
+    on_internal_error: Decision = Decision.BLOCK  # strict default
     pii: dict[FindingType, TypePolicy] = Field(default_factory=dict)
     secrets: TypePolicy = TypePolicy(action=RedactionAction.REDACT)
     response_scan: RedactionAction = RedactionAction.REDACT
-    custom_patterns: dict[str, str] = Field(default_factory=dict)    # name → regex (validated linear-time-safe)
+    custom_patterns: dict[str, str] = Field(
+        default_factory=dict
+    )  # name → regex (validated linear-time-safe)
+
 
 class GuardrailResult(BaseModel):
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
     request_id: str
     stage: GuardrailStage = GuardrailStage.INBOUND
     decision: Decision
-    risk_score: float = Field(ge=0, le=1)            # injection/jailbreak risk, NOT a safety guarantee
+    risk_score: float = Field(ge=0, le=1)  # injection/jailbreak risk, NOT a safety guarantee
     risk_level: Severity
     findings: list[Finding] = Field(default_factory=list)
-    sanitized_request: ChatCompletionRequest | None = None   # None when BLOCK
+    sanitized_request: ChatCompletionRequest | None = None  # None when BLOCK
     redaction_count: int = 0
     redacted_types: dict[str, int] = Field(default_factory=dict)
     policy_name: str
     policy_version: str
-    degraded: bool = False                            # internal error / timeout path taken
-    reason: str | None = None                         # human-safe summary for error body / UI
+    degraded: bool = False  # internal error / timeout path taken
+    reason: str | None = None  # human-safe summary for error body / UI
     latency_ms: float = 0.0
-    vault: Any = Field(default=None, exclude=True)    # RedactionVault; RAM-only, never serialized
+    vault: Any = Field(default=None, exclude=True)  # RedactionVault; RAM-only, never serialized
 
     @property
     def cache_clean(self) -> bool:
-        return (self.decision == Decision.ALLOW and self.redaction_count == 0 and not self.degraded)
+        return self.decision == Decision.ALLOW and self.redaction_count == 0 and not self.degraded
+
 
 class ResponseScanResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -670,21 +729,26 @@ from .enums import *
 from .openai_models import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionUsage
 from .guardrails import GuardrailResult, ResponseScanResult
 
+
 class CacheKeys(BaseModel):
     """Computed at L1 lookup and passed through to maybe_store to avoid recomputation."""
+
     model_config = ConfigDict(extra="forbid")
-    exact_key: str                       # SHA-256 hex over (tenant, policy_version, canonical request)
-    compat_hash: str | None = None       # set after guardrails (sanitized request)
+    exact_key: str  # SHA-256 hex over (tenant, policy_version, canonical request)
+    compat_hash: str | None = None  # set after guardrails (sanitized request)
     cache_scope: str | None = None
+
 
 class CacheResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
     outcome: CacheOutcome
     response: ChatCompletionResponse | None = None
     entry_id: str | None = None
-    similarity: float | None = None                  # L2 hit similarity
-    near_miss_similarity: float | None = None        # best candidate below threshold (dashboard/threshold tuning)
-    compat_mismatch: str | None = None               # which fingerprint component differed
+    similarity: float | None = None  # L2 hit similarity
+    near_miss_similarity: float | None = (
+        None  # best candidate below threshold (dashboard/threshold tuning)
+    )
+    compat_mismatch: str | None = None  # which fingerprint component differed
     bypass_reason: CacheBypassReason | None = None
     age_seconds: int | None = None
     ttl_remaining_seconds: int | None = None
@@ -697,6 +761,7 @@ class CacheResult(BaseModel):
     def hit(self) -> bool:
         return self.outcome in (CacheOutcome.HIT_L1, CacheOutcome.HIT_L2)
 
+
 class CacheStoreRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     tenant_id: str
@@ -708,9 +773,10 @@ class CacheStoreRequest(BaseModel):
     provider: ProviderName
     model_served: str
     usage: ChatCompletionUsage | None = None
-    completed: bool = True               # False for aborted/partial streams
+    completed: bool = True  # False for aborted/partial streams
     streamed: bool = False
-    ttl_seconds: int | None = None       # None → tenant/default TTL
+    ttl_seconds: int | None = None  # None → tenant/default TTL
+
 
 class StoreDecision(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -727,16 +793,23 @@ from datetime import datetime
 from typing import AsyncIterator
 from pydantic import BaseModel, ConfigDict, Field
 from .enums import *
-from .openai_models import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionChunk, ChatCompletionUsage
+from .openai_models import (
+    ChatCompletionRequest,
+    ChatCompletionResponse,
+    ChatCompletionChunk,
+    ChatCompletionUsage,
+)
 from .context import TenantContext
+
 
 class RouterRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     request_id: str
     tenant: TenantContext
-    request: ChatCompletionRequest        # sanitized; `fluxgate` field already stripped
+    request: ChatCompletionRequest  # sanitized; `fluxgate` field already stripped
     deadline_seconds: float = 60.0
     preferred_provider: ProviderName | None = None
+
 
 class RouteAttempt(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -750,6 +823,7 @@ class RouteAttempt(BaseModel):
     circuit_state_at_start: CircuitState
     retry_after_seconds: float | None = None
 
+
 class ProviderHealth(BaseModel):
     model_config = ConfigDict(extra="forbid")
     provider: ProviderName
@@ -760,6 +834,7 @@ class ProviderHealth(BaseModel):
     p50_latency_ms: float | None = None
     p95_latency_ms: float | None = None
 
+
 class RouterResult(BaseModel):
     model_config = ConfigDict(extra="forbid")
     response: ChatCompletionResponse
@@ -769,8 +844,10 @@ class RouterResult(BaseModel):
     attempts: list[RouteAttempt]
     ttft_ms: float | None = None
 
+
 class RouterStream(BaseModel):
     """Handle for a streaming call. `chunks` is an async iterator; attempts is filled as it runs."""
+
     model_config = ConfigDict(extra="forbid", arbitrary_types_allowed=True)
     provider: ProviderName
     model_served: str
@@ -789,22 +866,33 @@ from .cache import CacheResult, StoreDecision
 from .guardrails import GuardrailResult, ResponseScanResult
 from .router import RouteAttempt
 
+
 class StageTimings(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    auth_ms: float = 0; ratelimit_ms: float = 0; parse_ms: float = 0
-    l1_ms: float = 0; guardrails_in_ms: float = 0; l2_ms: float = 0
-    router_overhead_ms: float = 0; upstream_ms: float = 0; ttft_ms: float | None = None
-    guardrails_out_ms: float = 0; total_ms: float = 0
+    auth_ms: float = 0
+    ratelimit_ms: float = 0
+    parse_ms: float = 0
+    l1_ms: float = 0
+    guardrails_in_ms: float = 0
+    l2_ms: float = 0
+    router_overhead_ms: float = 0
+    upstream_ms: float = 0
+    ttft_ms: float | None = None
+    guardrails_out_ms: float = 0
+    total_ms: float = 0
+
 
 class ErrorInfo(BaseModel):
     model_config = ConfigDict(extra="forbid")
     http_status: int
-    type: str                      # OpenAI-style: invalid_request_error, rate_limit_error, api_error …
-    code: str                      # fluxgate_policy_block, fluxgate_no_healthy_provider, …
-    message: str                   # never contains sensitive content
+    type: str  # OpenAI-style: invalid_request_error, rate_limit_error, api_error …
+    code: str  # fluxgate_policy_block, fluxgate_no_healthy_provider, …
+    message: str  # never contains sensitive content
+
 
 class GatewayResponse(BaseModel):
     """Final per-request envelope assembled by gateway/pipeline.py."""
+
     model_config = ConfigDict(extra="forbid")
     request_id: str
     tenant_id: str
@@ -815,8 +903,10 @@ class GatewayResponse(BaseModel):
     provider: ProviderName | None = None
     streamed: bool = False
     status_code: int = 200
-    body: ChatCompletionResponse | None = None        # None for streamed (assembled copy not retained) / errors
-    headers: dict[str, str] = Field(default_factory=dict)   # X-FluxGate-*
+    body: ChatCompletionResponse | None = (
+        None  # None for streamed (assembled copy not retained) / errors
+    )
+    headers: dict[str, str] = Field(default_factory=dict)  # X-FluxGate-*
     cache: CacheResult
     store: StoreDecision | None = None
     guardrail_in: GuardrailResult | None = None
@@ -828,33 +918,55 @@ class GatewayResponse(BaseModel):
     timings: StageTimings = Field(default_factory=StageTimings)
     error: ErrorInfo | None = None
 
+
 class RequestTrace(BaseModel):
     """Persisted subset (no bodies, no raw sensitive values). Built from GatewayResponse."""
+
     model_config = ConfigDict(extra="forbid")
-    request_id: str; tenant_id: str; key_id: str
+    request_id: str
+    tenant_id: str
+    key_id: str
     created_at_unix_ms: int
-    model_requested: str; model_served: str | None; provider: ProviderName | None
-    served_from: str; streamed: bool; status_code: int
-    cache_outcome: CacheOutcome; similarity: float | None; near_miss_similarity: float | None
+    model_requested: str
+    model_served: str | None
+    provider: ProviderName | None
+    served_from: str
+    streamed: bool
+    status_code: int
+    cache_outcome: CacheOutcome
+    similarity: float | None
+    near_miss_similarity: float | None
     bypass_reason: CacheBypassReason | None
-    decision: Decision | None; risk_score: float | None
-    finding_summary: dict[str, int]; redaction_count: int
-    prompt_tokens: int | None; completion_tokens: int | None
-    tokens_saved: int; cost_saved_usd_est: float
+    decision: Decision | None
+    risk_score: float | None
+    finding_summary: dict[str, int]
+    redaction_count: int
+    prompt_tokens: int | None
+    completion_tokens: int | None
+    tokens_saved: int
+    cost_saved_usd_est: float
     timings: StageTimings
     attempts_summary: list[dict[str, str | int | float | None]]
-    prompt_sha256: str; prompt_chars: int
-    sanitized_preview: str | None = None             # ≤ 80 chars of SANITIZED text; null if disabled
+    prompt_sha256: str
+    prompt_chars: int
+    sanitized_preview: str | None = None  # ≤ 80 chars of SANITIZED text; null if disabled
+
 
 class SecurityAuditEvent(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    event_id: str; request_id: str; tenant_id: str; key_id: str
+    event_id: str
+    request_id: str
+    tenant_id: str
+    key_id: str
     created_at_unix_ms: int
     stage: GuardrailStage
     decision: Decision
-    finding_type: FindingType; rule_id: str; severity: Severity
+    finding_type: FindingType
+    rule_id: str
+    severity: Severity
     masked_preview: str | None
-    policy_name: str; policy_version: str
+    policy_name: str
+    policy_version: str
 ```
 
 ### 10.8 Protocols (integration seams) — `shared/contracts/protocols.py`
@@ -868,40 +980,64 @@ from .cache import CacheResult, CacheStoreRequest, StoreDecision, CacheKeys
 from .router import RouterRequest, RouterResult, RouterStream, ProviderHealth
 from .telemetry import RequestTrace, SecurityAuditEvent
 
+
 class RedactionVault(Protocol):
-    def restore(self, text: str) -> str: ...      # placeholder → original; request-scoped
+    def restore(self, text: str) -> str: ...  # placeholder → original; request-scoped
     def __len__(self) -> int: ...
+
 
 class StreamFlush(Protocol):
     text: str
     findings: list[Finding]
 
+
 class StreamRedactor(Protocol):
     """One instance per streamed response (per choice index). Not thread-safe by design."""
-    def feed(self, delta_text: str) -> str: ...   # returns text SAFE to emit now (may be "")
-    def flush(self) -> StreamFlush: ...           # call once at end of stream
+
+    def feed(self, delta_text: str) -> str: ...  # returns text SAFE to emit now (may be "")
+    def flush(self) -> StreamFlush: ...  # call once at end of stream
     @property
     def findings(self) -> list[Finding]: ...
+
 
 @runtime_checkable
 class GuardrailEngine(Protocol):
     @property
     def policy_version(self) -> str: ...
-    async def inspect_inbound(self, ctx: RequestContext, request: ChatCompletionRequest) -> GuardrailResult: ...
-    def new_stream_redactor(self, ctx: RequestContext, inbound: GuardrailResult) -> StreamRedactor: ...
-    async def scan_response(self, ctx: RequestContext, response: ChatCompletionResponse,
-                            inbound: GuardrailResult) -> ResponseScanResult: ...
+    async def inspect_inbound(
+        self, ctx: RequestContext, request: ChatCompletionRequest
+    ) -> GuardrailResult: ...
+    def new_stream_redactor(
+        self, ctx: RequestContext, inbound: GuardrailResult
+    ) -> StreamRedactor: ...
+    async def scan_response(
+        self, ctx: RequestContext, response: ChatCompletionResponse, inbound: GuardrailResult
+    ) -> ResponseScanResult: ...
+
 
 @runtime_checkable
 class CacheEngine(Protocol):
-    async def lookup_exact(self, ctx: RequestContext, request: ChatCompletionRequest,
-                           policy_version: str) -> CacheResult: ...          # step [4]
-    async def lookup_semantic(self, ctx: RequestContext, sanitized: ChatCompletionRequest,
-                              inbound: GuardrailResult, keys: CacheKeys) -> CacheResult: ...  # step [6]
+    async def lookup_exact(
+        self, ctx: RequestContext, request: ChatCompletionRequest, policy_version: str
+    ) -> CacheResult: ...  # step [4]
+    async def lookup_semantic(
+        self,
+        ctx: RequestContext,
+        sanitized: ChatCompletionRequest,
+        inbound: GuardrailResult,
+        keys: CacheKeys,
+    ) -> CacheResult: ...  # step [6]
     async def maybe_store(self, req: CacheStoreRequest) -> StoreDecision: ...  # step [9]
-    async def invalidate(self, tenant_id: str, *, entry_id: str | None = None,
-                         model: str | None = None, all_entries: bool = False) -> int: ...
+    async def invalidate(
+        self,
+        tenant_id: str,
+        *,
+        entry_id: str | None = None,
+        model: str | None = None,
+        all_entries: bool = False,
+    ) -> int: ...
     async def stats(self, tenant_id: str) -> dict[str, Any]: ...
+
 
 @runtime_checkable
 class Router(Protocol):
@@ -909,13 +1045,16 @@ class Router(Protocol):
     async def stream(self, req: RouterRequest) -> RouterStream: ...
     def health(self) -> list[ProviderHealth]: ...
 
+
 class TelemetrySink(Protocol):
-    def emit_trace(self, trace: RequestTrace) -> None: ...          # non-blocking enqueue
+    def emit_trace(self, trace: RequestTrace) -> None: ...  # non-blocking enqueue
     def emit_audit(self, event: SecurityAuditEvent) -> None: ...
+
 
 class Embedder(Protocol):
     dim: int
-    async def embed(self, text: str) -> "numpy.ndarray": ...        # L2-normalized float32[384]
+
+    async def embed(self, text: str) -> "numpy.ndarray": ...  # L2-normalized float32[384]
 ```
 
 ---

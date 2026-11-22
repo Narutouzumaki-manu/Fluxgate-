@@ -1,0 +1,108 @@
+{
+  "$defs": {
+    "CircuitState": {
+      "enum": [
+        "closed",
+        "open",
+        "half_open"
+      ],
+      "title": "CircuitState",
+      "type": "string"
+    },
+    "ProviderName": {
+      "enum": [
+        "groq",
+        "openrouter",
+        "nvidia_nim"
+      ],
+      "title": "ProviderName",
+      "type": "string"
+    },
+    "RouteFailureKind": {
+      "enum": [
+        "rate_limited",
+        "upstream_5xx",
+        "timeout",
+        "connect_error",
+        "circuit_open",
+        "bad_request",
+        "auth_error",
+        "stream_interrupted",
+        "client_disconnected"
+      ],
+      "title": "RouteFailureKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "circuit_state_at_start": {
+      "$ref": "#/$defs/CircuitState"
+    },
+    "failure": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RouteFailureKind"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "http_status": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Http Status"
+    },
+    "latency_ms": {
+      "title": "Latency Ms",
+      "type": "number"
+    },
+    "model_id": {
+      "title": "Model Id",
+      "type": "string"
+    },
+    "provider": {
+      "$ref": "#/$defs/ProviderName"
+    },
+    "retry_after_seconds": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Retry After Seconds"
+    },
+    "retry_safe": {
+      "default": false,
+      "title": "Retry Safe",
+      "type": "boolean"
+    },
+    "started_at": {
+      "format": "date-time",
+      "title": "Started At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider",
+    "model_id",
+    "started_at",
+    "latency_ms",
+    "circuit_state_at_start"
+  ],
+  "title": "RouteAttempt",
+  "type": "object"
+}

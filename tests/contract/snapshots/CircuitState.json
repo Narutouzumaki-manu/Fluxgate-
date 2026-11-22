@@ -1,0 +1,8 @@
+{
+  "__type": "StrEnum",
+  "values": [
+    "closed",
+    "half_open",
+    "open"
+  ]
+}

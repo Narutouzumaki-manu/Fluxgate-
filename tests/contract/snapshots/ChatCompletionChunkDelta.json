@@ -1,0 +1,47 @@
+{
+  "additionalProperties": true,
+  "properties": {
+    "content": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Content"
+    },
+    "role": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Role"
+    },
+    "tool_calls": {
+      "anyOf": [
+        {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "type": "array"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tool Calls"
+    }
+  },
+  "title": "ChatCompletionChunkDelta",
+  "type": "object"
+}

@@ -1,0 +1,39 @@
+{
+  "additionalProperties": false,
+  "description": "Computed at L1 lookup and passed through to maybe_store to avoid recomputation.",
+  "properties": {
+    "cache_scope": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Cache Scope"
+    },
+    "compat_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Compat Hash"
+    },
+    "exact_key": {
+      "title": "Exact Key",
+      "type": "string"
+    }
+  },
+  "required": [
+    "exact_key"
+  ],
+  "title": "CacheKeys",
+  "type": "object"
+}

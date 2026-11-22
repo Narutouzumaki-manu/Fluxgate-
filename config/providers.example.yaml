@@ -1,0 +1,139 @@
+# FluxGate — Provider Configuration (example)
+# Copy to config/providers.yaml and edit for your environment.
+# Owner: Member 2.
+# Source of truth: docs/ARCHITECTURE_BLUEPRINT.md §5, TRD §B5, DB migration 0004.
+#
+# This file supplements the database seed (0004_seed_config.sql) with extra
+# provider configuration that is more natural to express in YAML.
+# The authoritative routing state lives in the SQLite `providers` table;
+# on startup the application reconciles this file with the DB (config wins
+# for static fields; runtime state such as circuit breaker state is DB-only).
+#
+# IMPORTANT — model IDs must be verified before use:
+#   Run `python scripts/verify_env.py` on setup day to confirm that every
+#   model ID below is reachable on the free tier with your credentials.
+#   Model IDs on free tiers change without notice; check provider dashboards.
+#
+# Provider API keys: set via environment variables ONLY.
+#   GROQ_API_KEY, OPENROUTER_API_KEY, NVIDIA_API_KEY
+# Never commit real API keys to this file or any tracked file.
+
+providers:
+  groq:
+    display_name: "Groq"
+    base_url: "https://api.groq.com/openai/v1"
+    # Name of the env var that holds the API key (never the key itself).
+    auth_env_var: GROQ_API_KEY
+    enabled: true
+    priority: 10            # lower = higher preference
+    free_tier_only: true    # zero-cost constraint (D-006)
+    # Outbound rate-limit caps (~80% of real free-tier limits to leave headroom).
+    rpm_cap: 25
+    rpd_cap: null           # no daily cap configured; rely on rpm
+    connect_timeout_s: 5
+    read_timeout_s: 60
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_s: 30
+      half_open_max_probes: 1
+    extra_headers: {}
+
+  openrouter:
+    display_name: "OpenRouter"
+    base_url: "https://openrouter.ai/api/v1"
+    auth_env_var: OPENROUTER_API_KEY
+    enabled: true
+    priority: 20
+    free_tier_only: true
+    rpm_cap: 18             # OpenRouter free tier is credit-based; conservative cap
+    rpd_cap: null
+    connect_timeout_s: 5
+    read_timeout_s: 60
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_s: 30
+      half_open_max_probes: 1
+    # Required attribution headers for OpenRouter (no secrets here).
+    extra_headers:
+      HTTP-Referer: "https://github.com/your-org/fluxgate"
+      X-Title: "FluxGate"
+
+  nvidia_nim:
+    display_name: "NVIDIA NIM"
+    base_url: "https://integrate.api.nvidia.com/v1"
+    auth_env_var: NVIDIA_API_KEY
+    enabled: true
+    priority: 30
+    free_tier_only: true
+    rpm_cap: null           # NVIDIA free-tier limits are model-specific; circuit breaker handles 429s
+    rpd_cap: null
+    connect_timeout_s: 5
+    read_timeout_s: 60
+    circuit_breaker:
+      failure_threshold: 5
+      recovery_s: 30
+      half_open_max_probes: 1
+    extra_headers: {}
+
+# ---------------------------------------------------------------------------
+# Logical model aliases → provider model ID mappings.
+# These are the YAML representation of the model_aliases DB table.
+# Resolution order within each alias follows provider priority above.
+#
+# VERIFY: prefix means these model IDs must be confirmed on setup day.
+#         Replace with actual IDs from each provider's free-tier model list.
+# ---------------------------------------------------------------------------
+model_aliases:
+  fluxgate-default:
+    description: "Fast, free, general-purpose. Resolved in provider priority order."
+    groq:
+      model_id: "VERIFY:llama-3.1-8b-instant"      # verify at console.groq.com/docs/models
+      is_free: true
+      reference_price_in: 0.10    # USD/1M tokens (equivalent paid; label as estimate in UI)
+      reference_price_out: 0.10
+    openrouter:
+      model_id: "VERIFY:meta-llama/llama-3.1-8b-instruct:free"   # verify at openrouter.ai/models
+      is_free: true
+      reference_price_in: 0.10
+      reference_price_out: 0.10
+    nvidia_nim:
+      model_id: "VERIFY:meta/llama-3.1-8b-instruct"  # verify at build.nvidia.com/explore/discover
+      is_free: true
+      reference_price_in: 0.10
+      reference_price_out: 0.10
+
+  fluxgate-fast:
+    description: "Smallest/fastest alias for latency-critical or threshold-sweep workloads."
+    groq:
+      model_id: "VERIFY:llama-3.1-8b-instant"
+      is_free: true
+      reference_price_in: 0.10
+      reference_price_out: 0.10
+    openrouter:
+      model_id: "VERIFY:meta-llama/llama-3.1-8b-instruct:free"
+      is_free: true
+      reference_price_in: 0.10
+      reference_price_out: 0.10
+    nvidia_nim:
+      model_id: "VERIFY:meta/llama-3.1-8b-instruct"
+      is_free: true
+      reference_price_in: 0.10
+      reference_price_out: 0.10
+
+  fluxgate-smart:
+    description: "Largest free-tier alias for quality tasks; default in playground."
+    groq:
+      model_id: "VERIFY:llama-3.3-70b-versatile"   # verify free status at console.groq.com
+      is_free: true
+      reference_price_in: 0.59
+      reference_price_out: 0.79
+    openrouter:
+      model_id: "VERIFY:meta-llama/llama-3.3-70b-instruct:free"
+      is_free: true
+      reference_price_in: 0.59
+      reference_price_out: 0.79
+    nvidia_nim:
+      model_id: "VERIFY:meta/llama-3.3-70b-instruct"
+      is_free: true
+      reference_price_in: 0.59
+      reference_price_out: 0.79
