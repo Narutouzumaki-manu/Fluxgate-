@@ -142,6 +142,7 @@ ignore_missing_imports = true
 # pytest
 # ---------------------------------------------------------------------------
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests"]
 asyncio_mode = "auto"
 # `live` tests (real providers, free quota!) never run unless explicitly selected: pytest -m live
