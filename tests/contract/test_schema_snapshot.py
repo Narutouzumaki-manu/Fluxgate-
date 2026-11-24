@@ -123,9 +123,9 @@ def snapshot_dir() -> Path:
 
 
 def test_contract_version() -> None:
-    """CONTRACT_VERSION must be 1.0.0 at Gate 1."""
-    assert CONTRACT_VERSION == "1.0.0", (
-        f"CONTRACT_VERSION is {CONTRACT_VERSION!r}; expected '1.0.0'.\n"
+    """CONTRACT_VERSION must be 1.1.0 at Gate 1."""
+    assert CONTRACT_VERSION == "1.1.0", (
+        f"CONTRACT_VERSION is {CONTRACT_VERSION!r}; expected '1.1.0'.\n"
         "If you intentionally bumped the version, update this assertion "
         "and open a contract-change PR."
     )
