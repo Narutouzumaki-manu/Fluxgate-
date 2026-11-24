@@ -6,6 +6,6 @@ Changes to shared/contracts and shared/db/migrations follow the contract change 
 
 """FluxGate inter-module contracts (v1.0.0)."""
 
-CONTRACT_VERSION: str = "1.0.0"
+CONTRACT_VERSION: str = "1.1.0"
 
 __all__ = ["CONTRACT_VERSION"]

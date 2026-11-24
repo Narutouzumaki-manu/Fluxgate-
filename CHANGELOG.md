@@ -48,9 +48,9 @@ Every contract change must reference the PR labelled `contract-change` and the
     in-memory SQLite DB; asserts `PRAGMA integrity_check`, `PRAGMA foreign_key_check`,
     all tables and indexes present, seed rows correct.
 
-### Contracts
-- `CONTRACT_VERSION = "1.0.0"` (frozen at Gate 1 tag `contracts-v1.0.0`).
 
+### Contracts
+- 1.1.0: add `shared/contracts/protocols.py` (GuardrailEngine, CacheEngine, Router, StreamRedactor, RedactionVault, TelemetrySink, Embedder) as specified in Blueprint §10.8. Additive only; no existing model changed.
 ---
 
 ## [0.1.0.dev0] — 2026-11-22 (Phase 1a — Planning and Docs)
