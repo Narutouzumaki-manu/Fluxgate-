@@ -1,0 +1,16 @@
+# Always use LF line endings for text files, on every OS.
+* text=auto eol=lf
+
+# Windows-only scripts really do need CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Never touch binary files.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.db binary
+*.bin binary
+*.faiss binary
