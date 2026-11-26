@@ -27,6 +27,7 @@ repos:
           - pydantic-settings>=2.4
           - types-PyYAML
           - pytest
+          - hypothesis>=6.100
         args: [--ignore-missing-imports, --follow-imports=silent]
         files: ^(shared|guardrails|cache|router|gateway|dashboard|tests)/
 
