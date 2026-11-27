@@ -85,3 +85,7 @@ Thumbs.db
 # dashboard/static/vendor/         vendored htmx/alpine/chart.js (offline, no CDN)
 # .env.example                     placeholders only
 # config/*.example.yaml            examples without secrets
+
+# FluxGate's guardrails/secrets package is source code, not a secrets folder.
+!guardrails/secrets/
+!guardrails/secrets/**

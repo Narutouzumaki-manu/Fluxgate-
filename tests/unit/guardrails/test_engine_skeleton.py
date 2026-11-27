@@ -89,6 +89,7 @@ async def test_stream_redactor_is_passthrough_for_now() -> None:
     flush = redactor.flush()
     assert flush.text == ""
     assert flush.findings == []
+    assert redactor.findings == []
 
 
 async def test_scan_response_allows_for_now() -> None:

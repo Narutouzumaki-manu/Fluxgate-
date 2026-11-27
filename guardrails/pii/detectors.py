@@ -7,22 +7,11 @@ normalized view's text. All regexes use bounded repeats (ReDoS rule).
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, replace
+from dataclasses import replace
 
+from guardrails.detection import Detection as Detection  # re-exported for existing imports
 from guardrails.pii.validators import card_network, is_valid_aadhaar, is_valid_card, is_valid_pan
 from shared.contracts.enums import FindingType
-
-
-@dataclass(frozen=True)
-class Detection:
-    """One detected item. Never stores the matched value itself, only where it is."""
-
-    type: FindingType
-    rule_id: str
-    start: int
-    end: int
-    confidence: float
-
 
 # --- Email ---------------------------------------------------------------------
 _EMAIL_RE = re.compile(
