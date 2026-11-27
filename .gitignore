@@ -88,4 +88,3 @@ Thumbs.db
 
 # FluxGate's guardrails/secrets package is source code, not a secrets folder.
 !guardrails/secrets/
-!guardrails/secrets/**
