@@ -191,11 +191,11 @@ def _decode_token(token: str) -> tuple[str, str] | None:
     """Try to decode one token into readable text. Returns (text, encoding) or None."""
     if "=" not in token and len(token) % 2 == 0 and _HEX_RE.fullmatch(token):
         encoding = "hex"
-        if len(token) // 2 > MAX_DECODED_BYTES:
+        if len(token) // 2 > MAX_DECODED_BYTES:  # pragma: no cover - cap of _TOKEN_RE
             return None
         try:
             raw = bytes.fromhex(token)
-        except ValueError:
+        except ValueError:  # pragma: no cover - token is already valid hex
             return None
     else:
         encoding = "base64"
@@ -205,7 +205,7 @@ def _decode_token(token: str) -> tuple[str, str] | None:
         padded = core + "=" * (-len(core) % 4)
         try:
             raw = base64.b64decode(padded, validate=True)
-        except (binascii.Error, ValueError):
+        except (binascii.Error, ValueError):  # pragma: no cover - already validated
             return None
     try:
         text = raw.decode("utf-8")
