@@ -107,6 +107,35 @@ def is_valid_card(digits: str) -> bool:
     return 13 <= len(digits) <= 19 and is_valid_luhn(digits)
 
 
+def card_network(digits: str) -> str | None:
+    """Name the card network from the number's starting digits, or None if unknown.
+
+    Checks the prefix only, not the length or the checksum.
+    """
+    if len(digits) < 4 or not _ascii_digits(digits):
+        return None
+    p2, p3, p4 = int(digits[:2]), int(digits[:3]), int(digits[:4])
+    if digits[0] == "4":
+        return "visa"
+    if 51 <= p2 <= 55 or 2221 <= p4 <= 2720:
+        return "mastercard"
+    if p2 in (34, 37):
+        return "amex"
+    if p4 == 6011 or p2 == 65 or 644 <= p3 <= 649:
+        return "discover"
+    if 300 <= p3 <= 305 or p2 in (36, 38, 39):
+        return "diners"
+    if 3528 <= p4 <= 3589:
+        return "jcb"
+    if p2 == 62:
+        return "unionpay"
+    if p2 in (60, 81, 82) or p3 == 508:
+        return "rupay"
+    if p2 in (50, 56, 57, 58, 63, 67):
+        return "maestro"
+    return None
+
+
 # --- PAN (Indian tax ID) ----------------------------------------------------
 def is_valid_pan(pan: str) -> bool:
     """AAAAA9999A: five letters, four digits, one letter; 4th letter is a holder type."""

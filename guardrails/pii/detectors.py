@@ -7,9 +7,9 @@ normalized view's text. All regexes use bounded repeats (ReDoS rule).
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
-from guardrails.pii.validators import is_valid_aadhaar, is_valid_pan
+from guardrails.pii.validators import card_network, is_valid_aadhaar, is_valid_card, is_valid_pan
 from shared.contracts.enums import FindingType
 
 
@@ -123,3 +123,76 @@ def detect_pan(text: str) -> list[Detection]:
         if is_valid_pan(m.group()):  # the 4th letter must be a real holder type
             found.append(Detection(FindingType.PII_PAN, "PII-PAN-001", m.start(), m.end(), 0.9))
     return found
+
+
+# --- Payment card ------------------------------------------------------------------
+# 13-19 digits with an optional single space or hyphen between any two digits.
+# Same boundary guards as Aadhaar so we never start or stop in the middle of a longer number.
+_CARD_RE = re.compile(
+    r"(?<![A-Za-z0-9_])(?<![0-9][ -])"
+    r"[0-9](?:[ -]?[0-9]){12,18}"
+    r"(?![A-Za-z0-9_])(?![ -][0-9])"
+)
+
+
+def detect_card(text: str) -> list[Detection]:
+    found: list[Detection] = []
+    for m in _CARD_RE.finditer(text):
+        digits = "".join(ch for ch in m.group() if ch.isdigit())
+        if is_valid_card(digits) and card_network(digits) is not None:
+            found.append(Detection(FindingType.PII_CARD, "PII-CARD-LUHN", m.start(), m.end(), 0.9))
+    return found
+
+
+# --- Combining the detectors ----------------------------------------------------------
+# Higher number = wins when two detections have the same range or partly overlap.
+# M1-3 will add the secret types above these.
+_PRIORITY: dict[FindingType, int] = {
+    FindingType.PII_CARD: 5,
+    FindingType.PII_AADHAAR: 4,
+    FindingType.PII_PAN: 3,
+    FindingType.PII_PHONE: 2,
+    FindingType.PII_EMAIL: 1,
+}
+
+
+def _rank(d: Detection) -> int:
+    return _PRIORITY.get(d.type, 0)
+
+
+def resolve_overlaps(detections: list[Detection]) -> list[Detection]:
+    """Make the detections non-overlapping, sorted, and independent of input order.
+
+    - A span inside a bigger span is dropped (the bigger one already covers it).
+    - Identical ranges: the higher-priority type wins.
+    - Partial overlaps are merged into one span covering both, with the higher-priority type.
+    No text that was flagged ever becomes uncovered.
+    """
+    ordered = sorted(
+        detections,
+        key=lambda d: (d.start, -(d.end - d.start), -_rank(d), d.rule_id, -d.confidence),
+    )
+    merged: list[Detection] = []
+    for d in ordered:
+        if not merged or d.start >= merged[-1].end:
+            merged.append(d)
+            continue
+        prev = merged[-1]
+        if d.end <= prev.end:  # contained in (or identical to) the earlier, bigger span
+            continue
+        winner = d if _rank(d) > _rank(prev) else prev
+        merged[-1] = replace(winner, start=prev.start, end=d.end)
+    return merged
+
+
+def detect_pii(text: str) -> list[Detection]:
+    """Run every PII detector and return clean, non-overlapping detections, in text order."""
+    return resolve_overlaps(
+        [
+            *detect_email(text),
+            *detect_phone(text),
+            *detect_aadhaar(text),
+            *detect_pan(text),
+            *detect_card(text),
+        ]
+    )
