@@ -7,6 +7,9 @@ cut out of the original.
 
 from __future__ import annotations
 
+import base64
+import binascii
+import re
 import unicodedata
 from dataclasses import dataclass
 
@@ -153,3 +156,89 @@ def normalize(text: str) -> NormalizedView:
         i = j
     out, starts, ends = _collapse_whitespace(out, starts, ends)
     return NormalizedView("".join(out), tuple(starts), tuple(ends), removed, folded)
+
+
+# ---------------------------------------------------------------------------
+# Decode-probe (TRD A1 step 5)
+# ---------------------------------------------------------------------------
+MAX_DEPTH = 2  # base64(base64(x)) is checked; a third layer is not
+MAX_SEGMENTS = 5  # decoded pieces returned
+MAX_CANDIDATES = 20  # tokens examined (decoys must not push a real payload out of view)
+MAX_DECODED_BYTES = 8192
+MIN_DECODED_CHARS = 8
+
+# A run of base64-alphabet characters (hex is a subset). Bounded: no runaway scanning.
+_TOKEN_RE = re.compile(r"[A-Za-z0-9+/_-]{24,16384}={0,2}")
+_HEX_RE = re.compile(r"[0-9a-fA-F]+")
+
+
+@dataclass(frozen=True)
+class DecodedSegment:
+    """Readable text found hiding inside an encoded token. For scanning only."""
+
+    text: str
+    encoding: str  # "base64" or "hex"
+    depth: int  # 1 = decoded once, 2 = decoded twice
+    root_start: int  # where the outermost token sits in the text that was probed
+    root_end: int
+
+
+def _is_readable(text: str) -> bool:
+    return all(ch.isprintable() or ch in "\n\r\t" for ch in text)
+
+
+def _decode_token(token: str) -> tuple[str, str] | None:
+    """Try to decode one token into readable text. Returns (text, encoding) or None."""
+    if "=" not in token and len(token) % 2 == 0 and _HEX_RE.fullmatch(token):
+        encoding = "hex"
+        if len(token) // 2 > MAX_DECODED_BYTES:
+            return None
+        try:
+            raw = bytes.fromhex(token)
+        except ValueError:
+            return None
+    else:
+        encoding = "base64"
+        core = token.rstrip("=").replace("-", "+").replace("_", "/")  # accept url-safe too
+        if len(core) % 4 == 1 or len(core) * 3 // 4 > MAX_DECODED_BYTES:
+            return None
+        padded = core + "=" * (-len(core) % 4)
+        try:
+            raw = base64.b64decode(padded, validate=True)
+        except (binascii.Error, ValueError):
+            return None
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        return None
+    if len(text) < MIN_DECODED_CHARS or not _is_readable(text):
+        return None
+    return text, encoding
+
+
+def probe_decoded(text: str) -> tuple[DecodedSegment, ...]:
+    """Find base64/hex payloads in `text` that decode to readable text (depth <= 2).
+
+    Pass the normalized view's text. Spans refer to the string passed in; map them back
+    with NormalizedView.original_span. Decoded text must only ever be SCANNED.
+    """
+    found: list[DecodedSegment] = []
+    examined = 0
+    level: list[tuple[str, int, int]] = [(text, -1, -1)]  # (text to search, root span)
+    for depth in range(1, MAX_DEPTH + 1):
+        next_level: list[tuple[str, int, int]] = []
+        for source, root_start, root_end in level:
+            for match in _TOKEN_RE.finditer(source):
+                if examined >= MAX_CANDIDATES or len(found) >= MAX_SEGMENTS:
+                    return tuple(found)
+                examined += 1
+                result = _decode_token(match.group())
+                if result is None:
+                    continue
+                decoded, encoding = result
+                if depth == 1:
+                    root_start, root_end = match.start(), match.end()
+                found.append(DecodedSegment(decoded, encoding, depth, root_start, root_end))
+                next_level.append((decoded, root_start, root_end))
+        level = next_level
+    return tuple(found)
