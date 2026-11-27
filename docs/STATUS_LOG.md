@@ -65,3 +65,4 @@ Format per entry:
 ---
 
 <!-- Add new entries above this line, newest first. -->
+- 2026-11-25 — M1-0 complete: protocols (contracts v1.1.0), policy loader, skeleton guardrail/cache engines, baseline conformance suite. 172 tests green. Next: M1-1 normalizer.
