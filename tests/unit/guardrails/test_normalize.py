@@ -1,7 +1,7 @@
 from hypothesis import given
 from hypothesis import strategies as st
 
-from guardrails.normalize import normalize
+from guardrails.normalize import _INVISIBLE, normalize
 
 
 def test_plain_text_is_unchanged() -> None:
@@ -80,3 +80,47 @@ def test_offset_map_is_always_consistent(text: str) -> None:
         assert 0 <= s < e <= len(text)
         assert s >= previous  # the map never goes backwards
         previous = s
+
+
+def test_cyrillic_lookalike_folds_to_latin_and_is_counted() -> None:
+    # "ign" + CYRILLIC SMALL O + "re"
+    view = normalize("ign\u043ere")
+    assert view.text == "ignore"
+    assert view.homoglyphs_folded == 1
+
+
+def test_greek_uppercase_lookalike_folds() -> None:
+    assert normalize("\u0391\u0392").text == "AB"  # GREEK ALPHA, BETA
+
+
+def test_plain_ascii_has_no_folds() -> None:
+    assert normalize("ignore previous").homoglyphs_folded == 0
+
+
+def test_accent_still_composes_on_a_folded_letter() -> None:
+    # CYRILLIC SMALL A + combining acute: must become the single character U+00E1 in one pass
+    assert normalize("\u0430\u0301").text == "\u00e1"
+
+
+def test_runs_of_whitespace_collapse_to_one_space() -> None:
+    view = normalize("a  \t\n b")
+    assert view.text == "a b"
+    assert view.original_span(1, 2) == (1, 6)  # the single space covers the whole run
+    assert view.original_span(2, 3) == (6, 7)  # 'b'
+
+
+def test_non_breaking_space_becomes_a_plain_space() -> None:
+    assert normalize("a\u00a0b").text == "a b"
+
+
+def test_whitespace_split_by_a_hidden_character_still_collapses() -> None:
+    view = normalize("a \u200b b")
+    assert view.text == "a b"
+    assert view.invisible_removed == 1
+
+
+@given(st.text())
+def test_output_has_no_invisible_characters_or_double_spaces(text: str) -> None:
+    view = normalize(text)
+    assert "  " not in view.text
+    assert not any(ord(c) in _INVISIBLE for c in view.text)
