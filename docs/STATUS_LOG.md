@@ -66,3 +66,5 @@ Format per entry:
 
 <!-- Add new entries above this line, newest first. -->
 - 2026-11-25 — M1-0 complete: protocols (contracts v1.1.0), policy loader, skeleton guardrail/cache engines, baseline conformance suite. 172 tests green. Next: M1-1 normalizer.
+- 2026-11-27 — M1-1 complete: text normalizer (invisible-character stripping, NFKC, homoglyph fold, whitespace collapse, offset map) and bounded base64/hex decode-probe. 32 new tests incl. hypothesis properties. Next: M1-2 PII detectors.
+- 2026-11-27 — M1-2 complete: PII validators (Verhoeff, Luhn, PAN, card networks), detectors for email/phone/Aadhaar/PAN/card with overlap resolution (detect_pii). Measured on synthetic data: recall 100% (5 x 300 samples); false positives 0-0.36% per detector on 559 benign snippets. Next: M1-3 secret detectors.
