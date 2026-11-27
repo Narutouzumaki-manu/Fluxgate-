@@ -1,5 +1,3 @@
-import random
-
 import pytest
 from hypothesis import given
 from hypothesis import strategies as st
@@ -13,16 +11,10 @@ from guardrails.pii.validators import (
     luhn_check_digit,
     verhoeff_check_digit,
 )
+from tests.unit.guardrails.pii_helpers import make_aadhaar
 
 DIGITS = "0123456789"
 _digit_strings = st.text(alphabet=DIGITS, min_size=1, max_size=30)
-
-
-def make_aadhaar(seed: int) -> str:
-    """A made-up Aadhaar-shaped number with a valid check digit (never a real identity)."""
-    rng = random.Random(seed)
-    body = rng.choice("23456789") + "".join(rng.choice(DIGITS) for _ in range(10))
-    return body + verhoeff_check_digit(body)
 
 
 # --- Verhoeff ---------------------------------------------------------------

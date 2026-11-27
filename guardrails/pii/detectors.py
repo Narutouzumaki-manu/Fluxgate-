@@ -9,6 +9,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from guardrails.pii.validators import is_valid_aadhaar, is_valid_pan
 from shared.contracts.enums import FindingType
 
 
@@ -90,3 +91,35 @@ def detect_phone(text: str) -> list[Detection]:
             Detection(FindingType.PII_PHONE, "PII-PHONE-E164-001", m.start(), m.end(), 0.7)
         )
     return sorted(found, key=lambda d: d.start)
+
+
+# --- Aadhaar ---------------------------------------------------------------------
+# 12 digits, first digit 2-9, optionally grouped 4-4-4 with ONE consistent separator.
+_AADHAAR_RE = re.compile(
+    r"(?<![A-Za-z0-9_-])(?<![0-9][ -])"
+    r"[2-9][0-9]{3}([ -]?)[0-9]{4}\1[0-9]{4}"
+    r"(?![A-Za-z0-9_])(?![ -][0-9])"
+)
+
+
+def detect_aadhaar(text: str) -> list[Detection]:
+    found: list[Detection] = []
+    for m in _AADHAAR_RE.finditer(text):
+        digits = "".join(ch for ch in m.group() if ch.isdigit())
+        if is_valid_aadhaar(digits):  # a bad Verhoeff check digit means "not an Aadhaar"
+            found.append(
+                Detection(FindingType.PII_AADHAAR, "PII-AADHAAR-VERHOEFF", m.start(), m.end(), 0.95)
+            )
+    return found
+
+
+# --- PAN ---------------------------------------------------------------------------
+_PAN_RE = re.compile(r"(?<![A-Za-z0-9])[A-Za-z]{5}[0-9]{4}[A-Za-z](?![A-Za-z0-9])")
+
+
+def detect_pan(text: str) -> list[Detection]:
+    found: list[Detection] = []
+    for m in _PAN_RE.finditer(text):
+        if is_valid_pan(m.group()):  # the 4th letter must be a real holder type
+            found.append(Detection(FindingType.PII_PAN, "PII-PAN-001", m.start(), m.end(), 0.9))
+    return found
