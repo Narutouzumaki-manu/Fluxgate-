@@ -46,7 +46,7 @@ def resolve_overlaps(detections: list[Detection]) -> list[Detection]:
     """
     ordered = sorted(
         detections,
-        key=lambda d: (d.start, -(d.end - d.start), -_rank(d), d.rule_id, -d.confidence),
+        key=lambda d: (d.start, -(d.end - d.start), -_rank(d), -d.confidence, d.rule_id),
     )
     merged: list[Detection] = []
     for d in ordered:

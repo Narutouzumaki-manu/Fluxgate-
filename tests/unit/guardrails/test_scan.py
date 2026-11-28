@@ -99,3 +99,8 @@ def test_adversarial_inputs_finish_quickly() -> None:
         start = time.perf_counter()
         detect_sensitive(text)
         assert time.perf_counter() - start < 6.0
+
+
+def test_a_provider_key_inside_an_assignment_keeps_its_specific_rule() -> None:
+    key = "gsk_" + tok(11)
+    assert describe(f'API_KEY="{key}"') == [(T.SECRET_API_KEY, "SEC-GROQ-001", key)]
