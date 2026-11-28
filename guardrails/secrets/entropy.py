@@ -33,6 +33,9 @@ _HASH_CONTEXT = re.compile(
 _DATA_URI_CONTEXT = re.compile(r"base64,$", re.IGNORECASE)
 _SPLIT = re.compile(r"[-_/+]+")
 
+_ULID_RE = re.compile(r"(?:req_)?[0-9A-HJKMNP-TV-Z]{26}")  # our own request IDs look random
+_INTEGRITY_PREFIXES = ("sha256-", "sha384-", "sha512-")  # package-lock integrity hashes
+
 
 def shannon_entropy(s: str) -> float:
     """Bits of randomness per character (0.0 for an empty string)."""
@@ -60,6 +63,8 @@ def _wordy(core: str) -> bool:
 
 
 def _allowlisted(core: str, before: str) -> bool:
+    if _ULID_RE.fullmatch(core) or core.startswith(_INTEGRITY_PREFIXES):
+        return True
     if _UUID_RE.fullmatch(core):
         return True
     if len(core) in _HASH_LENGTHS and _HEX_RE.fullmatch(core) and _HASH_CONTEXT.search(before):

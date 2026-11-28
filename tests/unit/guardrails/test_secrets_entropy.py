@@ -14,6 +14,7 @@ from guardrails.secrets.entropy import (
     shannon_entropy,
 )
 from shared.contracts.enums import FindingType
+from shared.ids import new_request_id, new_ulid
 
 ALPHABET = string.ascii_letters + string.digits
 
@@ -180,3 +181,16 @@ def test_adversarial_inputs_finish_quickly() -> None:
         start = time.perf_counter()
         detect_high_entropy(text)
         assert time.perf_counter() - start < 3.0
+
+
+def test_ulids_and_request_ids_are_ignored() -> None:
+    for _ in range(50):
+        assert seen(f"id {new_ulid()}") == []
+        assert seen(f"log {new_request_id()} done") == []
+
+
+@pytest.mark.parametrize("algo", ["sha256", "sha384", "sha512"])
+def test_integrity_hashes_are_ignored(algo: str) -> None:
+    digest = random_token(9, 86, extra="+/")
+    assert seen(f"integrity {algo}-{digest}==") == []
+    assert seen(f"integrity {digest}==") != []  # the same blob without the prefix is a finding
