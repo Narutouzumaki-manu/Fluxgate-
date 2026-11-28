@@ -15,7 +15,7 @@ CANARIES: dict[str, tuple[str, FindingType, str]] = {
     "groq": ("gsk_" + "B" * 24, API, "SEC-GROQ-001"),
     "openrouter": ("sk-or-v1-" + "C" * 24, API, "SEC-OPENROUTER-001"),
     "nvidia": ("nvapi-" + "D" * 24, API, "SEC-NVIDIA-001"),
-    "anthropic": ("sk-ant-" + "api03-" + "F1" * 20, API, "SEC-ANTHROPIC-001"),
+    "anthropic": ("sk-ant-" + "api03-" + "F1" * 20, API, "SEC-ANTHROPIC-001"),  # gitleaks:allow
     "openai": ("sk-" + "abcd1234" * 6, API, "SEC-OPENAI-001"),
     "openai_proj": ("sk-proj-" + "Ab1" * 10, API, "SEC-OPENAI-001"),
     "aws": ("AKIA" + "IOSFODNN7EXAMPLE", API, "SEC-AWS-001"),

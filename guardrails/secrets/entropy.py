@@ -82,6 +82,12 @@ def detect_high_entropy(text: str) -> list[Detection]:
         if _allowlisted(core, before) or shannon_entropy(core) < MIN_ENTROPY:
             continue
         found.append(
-            Detection(FindingType.SECRET_HIGH_ENTROPY, "SEC-ENTROPY-001", m.start(), m.end(), 0.6)
+            Detection(
+                FindingType.SECRET_HIGH_ENTROPY,
+                "SEC-ENTROPY-001",
+                m.start(),
+                m.end(),
+                0.6,
+            )
         )
     return found

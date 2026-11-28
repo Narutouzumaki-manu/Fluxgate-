@@ -1,0 +1,2 @@
+a8bb60679ef0dfe10bb447f0e0ede106184d5bae:guardrails/secrets/entropy.py:generic-api-key:80
+d923a0177e53c99008f928a9a39450c85f152ddd:tests/unit/guardrails/test_secrets_patterns.py:generic-api-key:18
